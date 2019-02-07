@@ -1,0 +1,125 @@
+<template>
+    <div class="card card-default">
+        <div class="card-header" v-if="showHeader === 'true'">
+            <h3 v-if="type == taskListTypeMain">{{ title }} <span class="fas fa-list"></span></h3>
+            <h5 v-if="type == taskListTypeSub">{{ title }} <span class="fas fa-list"></span> </h5>
+        </div>
+        <div class="card-body">
+            <div
+                    v-for="(task,index) in tasks"
+                    class="task-item container h-100"
+            >
+                <task-list-item
+                        v-bind="task"
+                        :index="index"
+                        type="mainTask"
+                        @taskStatusChanged="changeStatus(index, $event)"
+                        @taskNameChanged="changeName(index, $event)"
+                        @taskToggleExpanded="toggleExpanded()"
+                        @dumpTasks="dump(tasks)"
+                ></task-list-item>
+            </div>
+            <div class="addTask" v-if="showAddTasks">
+                <b-form-input v-model="newTaskName"
+                              type="text"
+                              placeholder="Enter task name"></b-form-input>
+                <b-button :variant="buttonVariant" :size="buttonSize" @click="addTask" @keyup.enter="addTask">{{ createTaskText }}</b-button>
+                <span class="error">{{ taskNameError }}</span>
+            </div>
+
+        </div>
+    </div>
+</template>
+
+<script>
+    import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE} from '../config/tasks';
+    import TaskListItem from './TaskListItemComponent';
+    export default {
+        props: ['tasks', 'title', 'type', 'showHeader', 'buttonVariant', 'buttonSize'],
+        data() {
+            return {
+                "newTaskName": "",
+                "subTaskStructure": {
+                    "name": "",
+                    "status": ""
+                },
+                "taskNameError": ""
+            }
+        },
+        components: {
+            TaskListItem
+        },
+        mounted() {
+            console.log('Task List Component mounted.');
+            console.log(this.showHeader);
+        },
+        computed: {
+            createTaskText() {
+                if (this.type === "main") {
+                    return "Add a task";
+                }
+                return "Add sub-task";
+            },
+            showAddTasks() {
+                switch (this.type) {
+                    case TASKS_TYPE.main:
+                    case TASKS_TYPE.subTasks:
+                        return true;
+                    default: return false;
+                }
+            },
+            taskListTypeMain() {
+                return TASKS_TYPE.main;
+            },
+            taskListTypeSub() {
+                return TASKS_TYPE.subTasks;
+            },
+        },
+        methods: {
+            addTask: function() {
+               this.taskNameError = "";
+               let that = this;
+               this.validateTaskName(this.newTaskName, function(that) {
+                   let task = _.cloneDeep(TASKS_TEMPLATE);
+                   task.name = that.newTaskName;
+                   task.status = TASK_STATUS.new;
+                   that.newTaskName = "";
+                   that.tasks.push(task);
+                   that.tasksUpdated();
+               })
+            },
+            changeStatus: function(index, action) {
+                TASKS_EVENT.taskStatusChanged(this, index, action);
+                // this.$emit('taskStatusChanged', {index, 'status':action})
+            },
+            changeName: function(index, action) {
+                this.$emit('taskNameChanged', {index, 'name':action})
+            },
+            toggleExpanded: function() {
+                TASKS_EVENT.taskToggleExpanded(this);
+            },
+            validateTaskName: function(name, callback) {
+                let that = this;
+                this.tasks.forEach(function(task){
+                    if (task.name === name) {
+                        that.taskNameError = "Task already exists";
+                        return false;
+                    }
+                });
+                if (name.length === 0) {
+                    that.taskNameError = "Task name too short";
+                    return false;
+                }
+                callback(this);
+            },
+            tasksUpdated() {
+                console.log("Task list component, tasks updated triggered "+ this.tasks[0].name);
+                TASKS_EVENT.tasksUpdated(this, this.tasks);
+                // this.$emit('tasksUpdated', this.tasks);
+            },
+            dump(data) {
+                console.log(data);
+            }
+        }
+    }
+</script>
