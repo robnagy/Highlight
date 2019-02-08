@@ -3,10 +3,15 @@
 /public/storage
 /storage/*.key
 /vendor
-.idea
 .env
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+.history
+
+# IDE optimizations
+.phpstorm.meta.php
+.idea
+_ide_helper.php
