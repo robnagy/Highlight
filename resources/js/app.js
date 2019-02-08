@@ -11,8 +11,20 @@ window.Vue = require('vue');
 
 // Import BootstrapVue UI library
 import BootstrapVue from 'bootstrap-vue'
+import Vuex from 'Vuex'
+import EventBus from './events/event-bus.js'
+import store from './store';
 
+Vue.use(Vuex);
 Vue.use(BootstrapVue);
+
+Object.defineProperties(Vue.prototype, {
+  $bus: {
+    get() {
+      return EventBus;
+    },
+  },
+});
 
 /**
  * The following block of code may be used to automatically register your
@@ -35,5 +47,6 @@ Vue.component('task-page-component', require('./components/TaskPageComponent.vue
  */
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    store
 });
