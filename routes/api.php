@@ -16,3 +16,7 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::get('/user/{user_id}/tags', 'TagController@index')->name('tag.index');
+Route::post('/user/{user_id}/tag', 'TagController@store')->name('tag.create');

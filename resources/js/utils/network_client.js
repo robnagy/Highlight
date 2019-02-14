@@ -5,14 +5,17 @@ import store from '../store';
 const NetworkClient = {
   idOrNil: id => (id === undefined || id === null ? '' : id),
 
-  request: (commit, { url, mutations, method, setAuthHeaders }, data, id, params) => {
+  injectUserId: (url, userId) => (userId === undefined || userId === null ? url : url.replace("__userid__", userId)),
+
+  request: (commit, { url, mutations, method, setAuthHeaders }, data, userId, id, params) => {
     Http.request({
       method,
-      url: `${url}${NetworkClient.idOrNil(id)}`,
+      url: `${NetworkClient.injectUserId(url, userId)}${NetworkClient.idOrNil(id)}`,
       data,
       params,
       responseType: 'json',
       headers: {
+        Authorization: NetworkClient.authHeaders(setAuthHeaders),
         'Content-Type': 'application/json',
       },
     })
@@ -29,6 +32,13 @@ const NetworkClient = {
       });
   },
 
+  authHeaders: (setAuthHeaders) => {
+    if (setAuthHeaders) {
+      const currentToken = store.getters.GET_CSRF_TOKEN();
+      return `X-CSRF-TOKEN: ${currentToken}`;
+    }
+    return '';
+  },
 
   logoutUser: () => {
     store.dispatch('LOGOUT');

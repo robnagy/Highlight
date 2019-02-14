@@ -27,4 +27,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Sets the User has many Tags relationship
+     *
+     * @return void
+     */
+    public function tags()
+    {
+        return $this->hasMany('App\Tag');
+    }
 }
