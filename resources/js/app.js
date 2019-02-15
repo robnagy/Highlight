@@ -11,11 +11,8 @@ window.Vue = require('vue');
 
 // Import BootstrapVue UI library
 import BootstrapVue from 'bootstrap-vue'
-import Vuex from 'Vuex'
 import EventBus from './events/event-bus.js'
-import store from './store';
 
-Vue.use(Vuex);
 Vue.use(BootstrapVue);
 
 Object.defineProperties(Vue.prototype, {
@@ -37,7 +34,7 @@ Object.defineProperties(Vue.prototype, {
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('task-page-component', require('./components/TaskPageComponent.vue').default);
+Vue.component('task-page-component', require('./pages/TaskPage.vue').default);
 // Vue.component('task-list-component', require('./components/TaskListComponent.vue').default);
 
 /**
@@ -48,5 +45,5 @@ Vue.component('task-page-component', require('./components/TaskPageComponent.vue
 
 const app = new Vue({
     el: '#app',
-    store
+    mounted() {},
 });

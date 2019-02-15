@@ -8,11 +8,12 @@
             <div
                     v-for="(task,index) in tasks"
                     class="task-item container h-100"
+                    :key="index"
             >
                 <task-list-item
                         v-bind="task"
                         :index="index"
-                        type="mainTask"
+                        :type="type"
                         @taskStatusChanged="changeStatus(index, $event)"
                         @taskNameChanged="changeName(index, $event)"
                         @taskToggleExpanded="toggleExpanded()"
@@ -20,10 +21,14 @@
                 ></task-list-item>
             </div>
             <div class="addTask" v-if="showAddTasks">
-                <b-form-input v-model="newTaskName"
-                              type="text"
-                              placeholder="Enter task name"></b-form-input>
-                <b-button :variant="buttonVariant" :size="buttonSize" @click="addTask" @keyup.enter="addTask">{{ createTaskText }}</b-button>
+                <b-form-input
+                    v-model="newTaskName"
+                    type="text"
+                    :placeholder="createTaskText"
+                    autocomplete="off"
+                    @change="addTask"
+                ></b-form-input>
+                <!-- <b-button :variant="buttonVariant" :size="buttonSize" @click="addTask">{{ createTaskText }}</b-button> -->
                 <span class="error">{{ taskNameError }}</span>
             </div>
 
@@ -49,16 +54,13 @@
         components: {
             TaskListItem
         },
-        mounted() {
-            console.log('Task List Component mounted.');
-            console.log(this.showHeader);
-        },
+        mounted() {},
         computed: {
             createTaskText() {
-                if (this.type === "main") {
+                if (this.type === TASKS_TYPE.main) {
                     return "Add a task";
                 }
-                return "Add sub-task";
+                return "Add a sub-task";
             },
             showAddTasks() {
                 switch (this.type) {
@@ -84,6 +86,7 @@
                    task.name = that.newTaskName;
                    task.status = TASK_STATUS.new;
                    that.newTaskName = "";
+                   that.taskNameError = "";
                    that.tasks.push(task);
                    that.tasksUpdated();
                })
@@ -107,19 +110,14 @@
                     }
                 });
                 if (name.length === 0) {
-                    that.taskNameError = "Task name too short";
+                    // that.taskNameError = "Task name too short";
                     return false;
                 }
                 callback(this);
             },
             tasksUpdated() {
-                console.log("Task list component, tasks updated triggered "+ this.tasks[0].name);
                 TASKS_EVENT.tasksUpdated(this, this.tasks);
-                // this.$emit('tasksUpdated', this.tasks);
             },
-            dump(data) {
-                console.log(data);
-            }
         }
     }
 </script>

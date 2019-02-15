@@ -26,8 +26,8 @@
 
 <script>
     import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE, TASKS_UTILITY} from '../config/tasks';
-    import TaskList from './TaskListComponent.vue';
-    import SingleTask from './SingleTaskComponent';
+    import TaskList from '../components/TaskListComponent.vue';
+    import SingleTask from '../components/SingleTaskComponent';
     export default {
         data() {
             return {
@@ -41,9 +41,7 @@
             SingleTask,
             TaskList
         },
-        mounted() {
-            // console.log('Task Page Component mounted.')
-        },
+        mounted() {},
         methods: {
             getTasks: function (type, index) {
                 switch (type) {
@@ -55,7 +53,6 @@
             },
             changeTaskStatus: function (data) {
                 let index = data.index;
-                console.log('TaskPageComponent status changed to '+data.status);
                 switch (data.status) {
                     case TASK_STATUS.new:
                         this.tasks[index].status = TASK_STATUS.new;
@@ -83,6 +80,7 @@
                 this.tasks[this.selectedTaskIndex].subTasks[index].name = data.name;
             },
             selectTask: function(index) {
+                this.selectedTaskIndex = null;
                 TASKS_UTILITY.select(index, this.tasks);
                 this.selectedTaskIndex = index;
             },
@@ -104,26 +102,18 @@
                 this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
             },
             updateTask: function(data) {
-                console.log("TaskPageComponent, update task triggered");
-                console.log(data);
                 this.selectedTask = data;
             },
             updateTasks: function(data) {
                 this.tasks = data;
             },
-            updateSubTasks: function(data) {
-                this.$set(this.someObject, 'b', 2)
-                this.tasks[this.selectedTaskIndex].subTasks = _.clone(data);
-            }
         },
         computed: {
             selectedTask: {
                 get: function () {
-                    console.log('selectedTask getter running');
                     return this.tasks[this.selectedTaskIndex];
                 },
                 set: function(task) {
-                    console.log('selectedTask setter running');
                     this.$set(this.tasks, this.selectedTaskIndex, task);
                 }
             },

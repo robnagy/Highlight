@@ -4,40 +4,45 @@
             <h3>{{ name }} <span class="fas fa-list"></span></h3>
         </div>
         <div class="card-body">
-            <b-button variant="secondary" v-if="!showSubTasks" @click.stop="showSubTasks = !showSubTasks">
-                {{ showSubTaskText }}
-                <i class="far fa-angle-double-down"></i>
-            </b-button>
+            <div>
+                <!-- <b-button variant="secondary" v-if="!showSubTasks" @click.stop="showSubTasks = !showSubTasks">
+                    {{ showSubTaskText }}
+                    <i class="far fa-angle-double-down"></i>
+                </b-button> -->
 
-            <a
-                    v-if="showSubTasks"
-                    class="btn float-right my-auto"
-                    title="Show Sub-tasks"
-                    @click.stop="showSubTasks = !showSubTasks">
-                <i class="far fa-angle-double-up"></i>
-            </a>
-            <task-list v-if="showSubTasks"
-                :tasks="watchedSubTasks"
-                title="Sub-Tasks"
-                @tasksUpdated="updateTasks($event)"
-                @taskStatusChanged="changeSubTaskStatus($event)"
-                @taskNameChanged="changeTaskName($event)"
-                show-header="false"
-                :type="taskListTypeSub"
-                button-variant="primary"
-                button-size="sm"
-            ></task-list>
+                <!-- <a
+                        v-if="showSubTasks"
+                        class="btn float-right my-auto"
+                        title="Show Sub-tasks"
+                        @click.stop="showSubTasks = !showSubTasks">
+                    <i class="far fa-angle-double-up"></i>
+                </a> -->
+                <task-list
+                    :tasks="watchedSubTasks"
+                    title="Sub-Tasks"
+                    @tasksUpdated="updateHandler($event, 'subTasks')"
+                    @taskStatusChanged="changeSubTaskStatus($event)"
+                    @taskNameChanged="updateHandler($event, 'name')"
+                    show-header="false"
+                    :type="taskListTypeSub"
+                    button-variant="primary"
+                    button-size="sm"
+                ></task-list>
+            </div>
+
+            <tags-component :taskTags="tags" @tagsUpdated="updateHandler($event, 'tags')"></tags-component>
 
         </div>
     </div>
 </template>
 
 <script>
-    import {TASKS_TEMPLATE, TASK_GENERATOR, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE} from '../config/tasks';
-    import TaskList from "./TaskListComponent.vue"
+    import {TASKS_TEMPLATE, TASK_GENERATOR, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE, TASKS_UTILITY} from '../config/tasks';
+    import TaskList from "./TaskListComponent.vue";
+    import TagsComponent from "./TagsComponent";
     export default {
-        components: {TaskList},
-        props: ['name', 'status', 'expanded', 'subTasks'],
+        components: { TaskList, TagsComponent },
+        props: ['name', 'status', 'expanded', 'subTasks', 'tags'],
         data() {
             return {
                 'showSubTasks': false,
@@ -45,27 +50,29 @@
             }
         },
         mounted() {
-            console.log('Single task mounted.');
+            this.watchedSubTasks = _.cloneDeep(this.subTasks);
         },
         methods: {
-            addSubTasks: () => {
-                this.updateTasks([]);
+            getNewTask() {
+                return TASK_GENERATOR(this.name, this.status, this.expanded, this.subTasks, this.tags);
             },
             changeSubTaskStatus($event) {
-                console.log('singleTaskComponent subtask status changed '+$event.index+ " "+$event.status);
                 let newSubTasks = _.cloneDeep(this.watchedSubTasks);
-                newSubTasks[$event.index].status = $event.status;
-                console.log('sub task status changed '+ $event.status+ " index is:"+$event.index);
-                this.updateTasks(newSubTasks);
+                if ($event.status == TASK_STATUS.selected) {
+                    TASKS_UTILITY.select($event.index, newSubTasks);
+                } else {
+                    newSubTasks[$event.index].status = $event.status;
+                }
+                this.updateHandler(newSubTasks, "subTasks");
             },
-            updateTasks($event) {
-                console.log('SingleTaskComponent update tasks event received');
-                console.log($event);
-                let newTask = TASK_GENERATOR(this.name, this.status, this.expanded, $event);
-                newTask.subTasks = $event;
-                console.log('SingleTaskComponent task cloned');
-                TASKS_EVENT.taskUpdated(this, newTask)
-            }
+            updateHandler($event, type) {
+                let newTask = this.getNewTask();
+                newTask[type] = $event;
+                this.updateParentTask(newTask);
+            },
+            updateParentTask(task) {
+                TASKS_EVENT.taskUpdated(this, task);
+            },
         },
         computed: {
             showSubTaskText() {
@@ -77,12 +84,14 @@
             },
             taskListTypeSub() {
                 return TASKS_TYPE.subTasks;
-            }
+            },
+            GET_USER_ID () {
+                return this.$store.getters.GET_USER_ID;
+            },
         },
         watch: {
             "subTasks": function(newVal, oldVal) {
                 this.watchedSubTasks = newVal;
-                console.log('Single task, parents sub-tasks changed');
             }
         }
     }

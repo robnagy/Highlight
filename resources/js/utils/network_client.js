@@ -1,16 +1,17 @@
 import Http from 'axios';
 import EventBus from '../events/event-bus';
-import store from '../store';
 
 const NetworkClient = {
   idOrNil: id => (id === undefined || id === null ? '' : id),
 
-  injectUserId: (url, userId) => (userId === undefined || userId === null ? url : url.replace("__userid__", userId)),
+  getUserId: () => document.querySelector('meta[name="highlight-user-id"]').getAttribute('content') || undefined,
 
-  request: (commit, { url, mutations, method, setAuthHeaders }, data, userId, id, params) => {
+  injectUserId: (url) => (NetworkClient.getUserId() === undefined ? url : url.replace("__userid__", NetworkClient.getUserId())),
+
+  request: ({ url, method, setAuthHeaders }, data, id, params, onSuccess, onError) => {
     Http.request({
       method,
-      url: `${NetworkClient.injectUserId(url, userId)}${NetworkClient.idOrNil(id)}`,
+      url: `${NetworkClient.injectUserId(url)}${NetworkClient.idOrNil(id)}`,
       data,
       params,
       responseType: 'json',
@@ -20,28 +21,20 @@ const NetworkClient = {
       },
     })
       .then((response) => {
-        commit(mutations.success, response.data);
+        onSuccess(response.data, `${NetworkClient.injectUserId(url)}${NetworkClient.idOrNil(id)}`);
       })
       .catch((e) => {
-        commit('SET_API_ERRORS', e.response);
-        commit(mutations.error, e.response);
+        onError(e, `${NetworkClient.injectUserId(url)}${NetworkClient.idOrNil(id)}`)
         EventBus.$emit('errorFlashMessage', 'There are errors with your request');
-        if (['staging', 'production'].includes(process.env.NODE_ENV)) {
-          Raven.captureException(e);
-        }
       });
   },
 
   authHeaders: (setAuthHeaders) => {
     if (setAuthHeaders) {
-      const currentToken = store.getters.GET_CSRF_TOKEN();
-      return `X-CSRF-TOKEN: ${currentToken}`;
+      let csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      return `X-CSRF-TOKEN: ${csrf}`;
     }
     return '';
-  },
-
-  logoutUser: () => {
-    store.dispatch('LOGOUT');
   },
 };
 

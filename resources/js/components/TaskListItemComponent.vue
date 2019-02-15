@@ -1,12 +1,18 @@
 <template>
-    <div class="row align-items-center h-100" @click.stop="markSelected" :class="taskClass" title="Click to select">
-        <div class="col-md-5" v-if="!editMode"><span class="float-left" :class="taskClass">{{ localName }}</span></div>
+    <div class="row align-items-center h-100"
+        @click.stop="markSelected"
+        :class="taskClass"
+        title="Click to select"
+        @mouseenter="hover = true"
+        @mouseleave="hover = false"
+        >
+        <div class="col-md-5" v-if="!editMode">
+            <span class="float-left m-1 p-1" :class="taskClass">{{ localName }}</span>
+        </div>
         <div class="col-md-5" v-if="editMode" @click.stop="">
             <span class="float-left" :class="taskClass"><input type="text" v-model="localName" ></span>
-
-
         </div>
-        <div class="col-md-7">
+        <div class="col-md-7" v-if="hover">
             <a
                     v-if="showExpand"
                     class="btn float-right"
@@ -71,34 +77,26 @@
                     @click.stop="markNew">
                 <i class="far far-lock-open"></i>
             </a>
-            <a
-                    v-if="showDelete"
-                    class="btn float-right"
-                    :class="taskClass"
-                    title="Dump Task"
-                    @click.stop="dumpTask">
-                <i class="far fa-eye"></i>
             </a>
         </div>
     </div>
 </template>
 
 <script>
-    import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT} from '../config/tasks';
+    import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE} from '../config/tasks';
     export default {
         props: ['name', 'status', 'type', 'expanded', 'subTasks'],
         data() {
             return {
                 localName: "",
+                hover: false,
             }
         },
         mounted() {
-            // console.log('Single Task Component mounted. ' + this.name);
             this.localName = this.name;
         },
         computed: {
             editMode() {
-                // console.log('computing edit mode: ' + this.status);
                 switch (this.status) {
                     case TASK_STATUS.editing:
                         return true;
@@ -141,7 +139,8 @@
             showExpand() {
                 switch (this.status) {
                     case TASK_STATUS.selected:
-                        return this.expanded === false;
+                        if (this.type == TASKS_TYPE.main)
+                            return this.expanded === false;
                     default:
                         return false;
                 }
@@ -175,10 +174,6 @@
             }
         },
         methods: {
-            dumpTask() {
-                console.log('dumptask triggered');
-                this.$emit('dumpTasks');
-            },
             markComplete() {
                 this.statusChanged(TASK_STATUS.completed);
             },
