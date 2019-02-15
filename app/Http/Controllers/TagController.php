@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Tag;
-use Illuminate\Http\Request;
 use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
+use App\Tag;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class TagController extends Controller
 {
     protected $tag;
+    protected $tagService;
 
-    public function __construct(TagServiceInterface $tagServiceInterface)
+    public function __construct(Tag $tag, TagServiceInterface $tagServiceInterface)
     {
         $this->tag = $tagServiceInterface;
+        $this->tagService = $tagServiceInterface;
     }
 
     /**
@@ -24,7 +26,7 @@ class TagController extends Controller
      */
     public function index()
     {
-        return $this->tag->all();
+        return $this->tagService->all();
     }
 
     public function indexFor($user_id) {
@@ -49,8 +51,7 @@ class TagController extends Controller
      */
     public function store(TagRequest $request)
     {
-        $tag = $this->tag->create($request->toArray());
-        return $tag;
+        return $this->tagService->createFromRequest($request);
     }
 
     /**

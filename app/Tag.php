@@ -11,7 +11,7 @@ class Tag extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'name'];
+    public $fillable = ['user_id', 'text', 'style'];
 
     /**
      * Sets the Tag belongs to a User relationship

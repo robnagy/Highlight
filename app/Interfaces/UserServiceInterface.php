@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
-interface TagServiceInterface extends EloquentServiceInterface
+interface UserServiceInterface extends EloquentServiceInterface
 {
     /**
-     * Creates a tag from a request
+     * Returns id of user with name "guest"
      *
      * @param Request $request
-     * @return Tag
+     * @return int
      */
-    public function createFromRequest(Request $request) : Tag;
+    public function guestUserId() : int;
 }

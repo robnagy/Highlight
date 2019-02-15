@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Services\UserService;
+use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -30,12 +32,12 @@ class TagRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [
+            'text' => [
                 'required',
                 'max:255',
                 Rule::unique('tags')->where(function ($query) {
                     return $query
-                        ->where('name', $this->name)
+                        ->where('text', $this->text)
                         ->where('user_id', $this->user_id);
                 })
             ],
@@ -55,7 +57,21 @@ class TagRequest extends FormRequest
     public function all($keys = null)
     {
         $data = parent::all($keys);
-        $data['user_id'] = $this->route('user_id');
+        $data['user_id'] = $this->getUserId();
         return $data;
     }
+
+    /**
+     * Returns user_id based URL segment
+     *
+     * @return int user_id
+     */
+    protected function getUserId() {
+        if ($this->route('user_id') === "guest") {
+            $userService = new UserService(new User());
+            return $userService->guestUserId();
+        } else return $this->route('user_id');
+    }
+
+
 }

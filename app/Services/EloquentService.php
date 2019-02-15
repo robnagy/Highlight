@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\EloquentServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class EloquentService implements EloquentServiceInterface
 {
