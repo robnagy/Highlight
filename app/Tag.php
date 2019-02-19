@@ -16,7 +16,7 @@ class Tag extends Model
     /**
      * Sets the Tag belongs to a User relationship
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
     {

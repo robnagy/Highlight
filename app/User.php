@@ -31,10 +31,21 @@ class User extends Authenticatable
     /**
      * Sets the User has many Tags relationship
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function tags()
     {
         return $this->hasMany('App\Tag');
     }
+
+    /**
+     * Sets the User has many Tasks relationship
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tasks()
+    {
+        return $this->hasMany('App\Task');
+    }
+
 }

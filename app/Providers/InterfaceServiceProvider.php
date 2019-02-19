@@ -25,5 +25,6 @@ class InterfaceServiceProvider extends ServiceProvider
     {
         $this->app->bind("App\Interfaces\EloquentServiceInterface", "App\Services\EloquentService");
         $this->app->bind("App\Interfaces\TagServiceInterface", "App\Services\TagService");
+        $this->app->bind("App\Interfaces\TaskServiceInterface", "App\Services\TaskService");
     }
 }

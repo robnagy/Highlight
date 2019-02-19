@@ -80,20 +80,17 @@
         methods: {
             addTask: function() {
                this.taskNameError = "";
-               let that = this;
-               this.validateTaskName(this.newTaskName, function(that) {
+               this.validateTaskName(this.newTaskName, () => {
                    let task = _.cloneDeep(TASKS_TEMPLATE);
-                   task.name = that.newTaskName;
+                   task.name = this.newTaskName;
                    task.status = TASK_STATUS.new;
-                   that.newTaskName = "";
-                   that.taskNameError = "";
-                   that.tasks.push(task);
-                   that.tasksUpdated();
+                   this.newTaskName = "";
+                   this.taskNameError = "";
+                   TASKS_EVENT.taskAdded(this, task);
                })
             },
             changeStatus: function(index, action) {
                 TASKS_EVENT.taskStatusChanged(this, index, action);
-                // this.$emit('taskStatusChanged', {index, 'status':action})
             },
             changeName: function(index, action) {
                 this.$emit('taskNameChanged', {index, 'name':action})
@@ -114,9 +111,6 @@
                     return false;
                 }
                 callback(this);
-            },
-            tasksUpdated() {
-                TASKS_EVENT.tasksUpdated(this, this.tasks);
             },
         }
     }

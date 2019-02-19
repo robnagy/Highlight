@@ -30,7 +30,7 @@ import { timeout } from 'q';
             }
         },
         mounted() {
-            this.activeTags = _.cloneDeep(this.taskTags);
+            this.activeTags = _.cloneDeep(this.taskTags || []);
             this.fetchUserTags();
         },
         methods: {

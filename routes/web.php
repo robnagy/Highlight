@@ -19,10 +19,18 @@ Route::get('/tasks', function () {
    return view('tasks')->with('userId', 1);
 })->name('tasks');
 
-Route::get('/user/{userID}/tasks', 'TaskController@indexForUser')->name('tasksForUser');
 
 Auth::routes();
 
+Route::group(['middleware' => ['web']], function () {
+    Route::get('/user/{user_id}/tags', 'TagController@indexFor')->name('tag.indexFor');
+    Route::post('/user/{user_id}/tag', 'TagController@store')->name('tag.store');
+    Route::get('/user/{user_id}/tasks', 'TaskController@indexForUser')->name('tasks.index');
+    Route::post('/user/{user_id}/task', 'TaskController@store')->name('task.store');
+    Route::patch('/user/{user_id}/task/{task}', 'TaskController@update')->name('tasks.update');
+    Route::get('/tags', 'TagController@index')->name('tags');
+});
+
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/tags', 'TagController@index')->name('tags');
+

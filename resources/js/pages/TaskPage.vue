@@ -4,7 +4,7 @@
             <div class="col-md-6">
                 <task-list
                         :tasks="tasks"
-                        @tasksUpdated="updateTasks($event)"
+                        @taskAdded="addTask($event)"
                         @taskStatusChanged="changeTaskStatus($event)"
                         @taskNameChanged="changeTaskName($event)"
                         @taskToggleExpanded="taskToggleExpanded()"
@@ -28,6 +28,8 @@
     import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE, TASKS_UTILITY} from '../config/tasks';
     import TaskList from '../components/TaskListComponent.vue';
     import SingleTask from '../components/SingleTaskComponent';
+    import loadTasksMixin from '../mixins/loadTasksMixin';
+    import saveTaskMixin from '../mixins/saveTaskMixin';
     export default {
         data() {
             return {
@@ -41,21 +43,19 @@
             SingleTask,
             TaskList
         },
+        mixins: [ loadTasksMixin, saveTaskMixin ],
         mounted() {},
         methods: {
-            getTasks: function (type, index) {
-                switch (type) {
-                    case 'main':
-                        return this.tasks;
-                    case '':
-                        break;
-                }
+            addTask($event) {
+                this.tasks.push($event);
+                this.postTask($event, this.tasks.length-1);
             },
             changeTaskStatus: function (data) {
                 let index = data.index;
+                let change = true;
                 switch (data.status) {
                     case TASK_STATUS.new:
-                        this.tasks[index].status = TASK_STATUS.new;
+                        this.$set(this.tasks[index], status, TASK_STATUS.new);
                         break;
                     case TASK_STATUS.editing:
                         this.tasks[index].status = TASK_STATUS.editing;
@@ -69,27 +69,33 @@
                     case TASK_STATUS.deleted:
                         this.tasks.splice(index, 1);
                         break;
+                    default:
+                        change = false;
+                }
+                if (change) {
+                    this.postTask(this.tasks[index], index);
                 }
             },
-            changeTaskName: function (data) {
+            changeTaskName(data) {
                 let index = data.index;
                 this.tasks[index].name = data.name;
+                this.postTask(this.tasks[index], index);
             },
-            changeSubTaskName: function (data) {
+            changeSubTaskName(data) {
                 let index = data.index;
                 this.tasks[this.selectedTaskIndex].subTasks[index].name = data.name;
             },
-            selectTask: function(index) {
+            selectTask(index) {
                 this.selectedTaskIndex = null;
-                TASKS_UTILITY.select(index, this.tasks);
+                TASKS_UTILITY.select(index, this.tasks, this.postTask);
                 this.selectedTaskIndex = index;
             },
-            taskExpanded: function() {
+            taskExpanded() {
                 if (this.tasks !== null) {
                     if (this.tasks.length > 0) {
                         if (this.selectedTaskIndex != null) {
                             if (this.selectedTaskIndex > -1) {
-                                if (this.tasks[this.selectedTaskIndex].expanded === true) {
+                                if (this.tasks[this.selectedTaskIndex].expanded || false) {
                                     return true;
                                 }
                             }
@@ -100,6 +106,7 @@
             },
             taskToggleExpanded: function() {
                 this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
+                this.postTaskTrigger();
             },
             updateTask: function(data) {
                 this.selectedTask = data;
@@ -107,6 +114,13 @@
             updateTasks: function(data) {
                 this.tasks = data;
             },
+            updateSelectedTaskIndex() {
+                this.tasks.some((t, index) => {
+                    if (t.status === TASK_STATUS.selected) {
+                        this.selectedTaskIndex = index;
+                        return true;
+                    } });
+            }
         },
         computed: {
             selectedTask: {
@@ -115,6 +129,7 @@
                 },
                 set: function(task) {
                     this.$set(this.tasks, this.selectedTaskIndex, task);
+                    this.postTaskTrigger();
                 }
             },
             subTaskName: function() {

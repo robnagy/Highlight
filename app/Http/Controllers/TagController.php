@@ -7,15 +7,19 @@ use App\Interfaces\TagServiceInterface;
 use App\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Services\UserService;
 
 class TagController extends Controller
 {
-    protected $tag;
+    /**
+     * Tag service
+     *
+     * @var TagServiceInterface
+     */
     protected $tagService;
 
-    public function __construct(Tag $tag, TagServiceInterface $tagServiceInterface)
+    public function __construct(TagServiceInterface $tagServiceInterface)
     {
-        $this->tag = $tagServiceInterface;
         $this->tagService = $tagServiceInterface;
     }
 
@@ -29,8 +33,18 @@ class TagController extends Controller
         return $this->tagService->all();
     }
 
+    /**
+     * Display all tags belonging to user_id. $user_id can be either
+     * an existing user_id, or be the string identifier
+     * for the guest user which is "guest".
+     *
+     * @param mixed $user_id
+     * @return \Illuminate\Http\Response
+     */
     public function indexFor($user_id) {
-
+        $user_id = UserService::checkUserId($user_id);
+        return $this->tagService->allForUser($user_id)
+            ->sortBy('text')->values();
     }
 
     /**
@@ -46,7 +60,7 @@ class TagController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param TagRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(TagRequest $request)

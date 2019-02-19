@@ -1816,6 +1816,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -1824,7 +1825,7 @@ __webpack_require__.r(__webpack_exports__);
     TaskList: _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     TagsComponent: _TagsComponent__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
-  props: ['name', 'status', 'expanded', 'subTasks', 'tags'],
+  props: ['name', 'status', 'expanded', 'subTasks', 'tags', 'id'],
   data: function data() {
     return {
       'showSubTasks': false,
@@ -1835,8 +1836,13 @@ __webpack_require__.r(__webpack_exports__);
     this.watchedSubTasks = _.cloneDeep(this.subTasks);
   },
   methods: {
+    newSubTaskAdded: function newSubTaskAdded($event) {
+      var task = this.getNewTask();
+      task.subTasks.push($event);
+      this.updateParentTask(task);
+    },
     getNewTask: function getNewTask() {
-      return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subTasks, this.tags);
+      return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subTasks, this.tags, this.id);
     },
     changeSubTaskStatus: function changeSubTaskStatus($event) {
       var newSubTasks = _.cloneDeep(this.watchedSubTasks);
@@ -1930,7 +1936,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
-    this.activeTags = _.cloneDeep(this.taskTags);
+    this.activeTags = _.cloneDeep(this.taskTags || []);
     this.fetchUserTags();
   },
   methods: {
@@ -2102,21 +2108,21 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     addTask: function addTask() {
+      var _this = this;
+
       this.taskNameError = "";
-      var that = this;
-      this.validateTaskName(this.newTaskName, function (that) {
+      this.validateTaskName(this.newTaskName, function () {
         var task = _.cloneDeep(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TEMPLATE"]);
 
-        task.name = that.newTaskName;
+        task.name = _this.newTaskName;
         task.status = _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new;
-        that.newTaskName = "";
-        that.taskNameError = "";
-        that.tasks.push(task);
-        that.tasksUpdated();
+        _this.newTaskName = "";
+        _this.taskNameError = "";
+        _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskAdded(_this, task);
       });
     },
     changeStatus: function changeStatus(index, action) {
-      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskStatusChanged(this, index, action); // this.$emit('taskStatusChanged', {index, 'status':action})
+      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskStatusChanged(this, index, action);
     },
     changeName: function changeName(index, action) {
       this.$emit('taskNameChanged', {
@@ -2142,9 +2148,6 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       callback(this);
-    },
-    tasksUpdated: function tasksUpdated() {
-      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].tasksUpdated(this, this.tasks);
     }
   }
 });
@@ -2306,7 +2309,9 @@ __webpack_require__.r(__webpack_exports__);
     showExpand: function showExpand() {
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected:
-          if (this.type == _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].main) return this.expanded === false;
+          if (this.type == _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].main) {
+            return this.expanded == false;
+          }
 
         default:
           return false;
@@ -2315,7 +2320,7 @@ __webpack_require__.r(__webpack_exports__);
     showContract: function showContract() {
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected:
-          return this.expanded === true;
+          return this.expanded == true;
 
         default:
           return false;
@@ -2391,6 +2396,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
 /* harmony import */ var _components_TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/TaskListComponent.vue */ "./resources/js/components/TaskListComponent.vue");
 /* harmony import */ var _components_SingleTaskComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/SingleTaskComponent */ "./resources/js/components/SingleTaskComponent.vue");
+/* harmony import */ var _mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mixins/loadTasksMixin */ "./resources/js/mixins/loadTasksMixin.js");
+/* harmony import */ var _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/saveTaskMixin */ "./resources/js/mixins/saveTaskMixin.js");
 //
 //
 //
@@ -2417,6 +2424,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
+
 
 
 
@@ -2433,23 +2442,20 @@ __webpack_require__.r(__webpack_exports__);
     SingleTask: _components_SingleTaskComponent__WEBPACK_IMPORTED_MODULE_2__["default"],
     TaskList: _components_TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
+  mixins: [_mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_3__["default"], _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_4__["default"]],
   mounted: function mounted() {},
   methods: {
-    getTasks: function getTasks(type, index) {
-      switch (type) {
-        case 'main':
-          return this.tasks;
-
-        case '':
-          break;
-      }
+    addTask: function addTask($event) {
+      this.tasks.push($event);
+      this.postTask($event, this.tasks.length - 1);
     },
     changeTaskStatus: function changeTaskStatus(data) {
       var index = data.index;
+      var change = true;
 
       switch (data.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new:
-          this.tasks[index].status = _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new;
+          this.$set(this.tasks[index], status, _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new);
           break;
 
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing:
@@ -2467,11 +2473,19 @@ __webpack_require__.r(__webpack_exports__);
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].deleted:
           this.tasks.splice(index, 1);
           break;
+
+        default:
+          change = false;
+      }
+
+      if (change) {
+        this.postTask(this.tasks[index], index);
       }
     },
     changeTaskName: function changeTaskName(data) {
       var index = data.index;
       this.tasks[index].name = data.name;
+      this.postTask(this.tasks[index], index);
     },
     changeSubTaskName: function changeSubTaskName(data) {
       var index = data.index;
@@ -2479,7 +2493,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     selectTask: function selectTask(index) {
       this.selectedTaskIndex = null;
-      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_UTILITY"].select(index, this.tasks);
+      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_UTILITY"].select(index, this.tasks, this.postTask);
       this.selectedTaskIndex = index;
     },
     taskExpanded: function taskExpanded() {
@@ -2487,7 +2501,7 @@ __webpack_require__.r(__webpack_exports__);
         if (this.tasks.length > 0) {
           if (this.selectedTaskIndex != null) {
             if (this.selectedTaskIndex > -1) {
-              if (this.tasks[this.selectedTaskIndex].expanded === true) {
+              if (this.tasks[this.selectedTaskIndex].expanded || false) {
                 return true;
               }
             }
@@ -2499,12 +2513,23 @@ __webpack_require__.r(__webpack_exports__);
     },
     taskToggleExpanded: function taskToggleExpanded() {
       this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
+      this.postTaskTrigger();
     },
     updateTask: function updateTask(data) {
       this.selectedTask = data;
     },
     updateTasks: function updateTasks(data) {
       this.tasks = data;
+    },
+    updateSelectedTaskIndex: function updateSelectedTaskIndex() {
+      var _this = this;
+
+      this.tasks.some(function (t, index) {
+        if (t.status === _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected) {
+          _this.selectedTaskIndex = index;
+          return true;
+        }
+      });
     }
   },
   computed: {
@@ -2514,6 +2539,7 @@ __webpack_require__.r(__webpack_exports__);
       },
       set: function set(task) {
         this.$set(this.tasks, this.selectedTaskIndex, task);
+        this.postTaskTrigger();
       }
     },
     subTaskName: function subTaskName() {
@@ -43016,6 +43042,9 @@ var render = function() {
                 },
                 taskNameChanged: function($event) {
                   _vm.updateHandler($event, "name")
+                },
+                taskAdded: function($event) {
+                  _vm.newSubTaskAdded($event)
                 }
               }
             })
@@ -43476,8 +43505,8 @@ var render = function() {
               type: _vm.taskListTypeMain
             },
             on: {
-              tasksUpdated: function($event) {
-                _vm.updateTasks($event)
+              taskAdded: function($event) {
+                _vm.addTask($event)
               },
               taskStatusChanged: function($event) {
                 _vm.changeTaskStatus($event)
@@ -55180,18 +55209,32 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-var baseUrl = "".concat("http://127.0.0.1:8000", "/api");
+var baseUrl = "".concat("http://127.0.0.1:8000");
 /* harmony default export */ __webpack_exports__["default"] = ({
   v1: {
     get: {
       tags: {
         url: "".concat(baseUrl, "/user/__userid__/tags"),
         method: 'GET'
+      },
+      tasks: {
+        url: "".concat(baseUrl, "/user/__userid__/tasks"),
+        method: 'GET'
+      }
+    },
+    patch: {
+      task: {
+        url: "".concat(baseUrl, "/user/__userid__/task/__id__"),
+        method: 'PATCH'
       }
     },
     post: {
+      task: {
+        url: "".concat(baseUrl, "/user/__userid__/task"),
+        method: 'POST'
+      },
       tag: {
-        url: "".concat(baseUrl, "/user/__userid__/tag"),
+        url: "".concat(baseUrl, "/user/__userid__/task"),
         method: 'POST'
       }
     }
@@ -55224,13 +55267,17 @@ var TASKS_TEMPLATE = {
   "tags": []
 };
 
-var TASK_GENERATOR = function TASK_GENERATOR(name, status, expanded, subTasks) {
+var TASK_GENERATOR = function TASK_GENERATOR(name, status, expanded, subTasks, tags, id) {
+  console.log("task generator running");
+
   var newTask = _.cloneDeep(TASKS_TEMPLATE);
 
   if (name) newTask.name = name;
   if (status) newTask.status = status;
   if (expanded) newTask.expanded = expanded;
   if (subTasks) newTask.subTasks = subTasks;
+  if (tags) newTask.tags = tags;
+  if (id) newTask.id = id;
   return newTask;
 };
 
@@ -55247,6 +55294,7 @@ var TASKS_TYPE = {
   subTasks: "subTasks"
 };
 var TASKS_EVENT_NAME = {
+  taskAdded: "taskAdded",
   taskRenamed: "taskRenamed",
   taskStatusChanged: "taskStatusChanged",
   taskToggleExpanded: "taskToggleExpanded",
@@ -55254,6 +55302,9 @@ var TASKS_EVENT_NAME = {
   tasksUpdated: "tasksUpdated"
 };
 var TASKS_EVENT = {
+  taskAdded: function taskAdded(context, task) {
+    context.$emit(TASKS_EVENT_NAME.taskAdded, task);
+  },
   taskToggleExpanded: function taskToggleExpanded(context) {
     context.$emit(TASKS_EVENT_NAME.taskToggleExpanded);
   },
@@ -55276,10 +55327,11 @@ var TASKS_EVENT = {
   }
 };
 var TASKS_UTILITY = {
-  select: function select(index, tasks) {
-    tasks.forEach(function (task) {
+  select: function select(index, tasks, onSelect) {
+    tasks.forEach(function (task, index) {
       if (task.status === TASK_STATUS.selected) {
         task.status = TASK_STATUS.new;
+        if (onSelect) onSelect(task, index);
       }
     });
 
@@ -55306,6 +55358,105 @@ __webpack_require__.r(__webpack_exports__);
 
 var EventBus = new vue__WEBPACK_IMPORTED_MODULE_0___default.a();
 /* harmony default export */ __webpack_exports__["default"] = (EventBus);
+
+/***/ }),
+
+/***/ "./resources/js/mixins/loadTasksMixin.js":
+/*!***********************************************!*\
+  !*** ./resources/js/mixins/loadTasksMixin.js ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _utils_network_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/network_client */ "./resources/js/utils/network_client.js");
+/* harmony import */ var _config_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/api */ "./resources/js/config/api.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {};
+  },
+  created: function created() {
+    _utils_network_client__WEBPACK_IMPORTED_MODULE_0__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_1__["default"].v1.get.tasks, null, null, null, this.tasksGetSuccess, this.tasksGetFailure);
+  },
+  methods: {
+    tasksGetSuccess: function tasksGetSuccess(data) {
+      this.tasks = data;
+      this.updateSelectedTaskIndex();
+    },
+    tasksGetFailure: function tasksGetFailure(e, url) {
+      console.log(e);
+      console.log(url);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/mixins/saveTaskMixin.js":
+/*!**********************************************!*\
+  !*** ./resources/js/mixins/saveTaskMixin.js ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config_api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/api */ "./resources/js/config/api.js");
+/* harmony import */ var _utils_network_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/network_client */ "./resources/js/utils/network_client.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {};
+  },
+  methods: {
+    postTask: function postTask(data, index) {
+      if (data.hasOwnProperty('id')) this.postUpdatedTask(data, index);else this.postNewTask(data, index);
+    },
+    postNewTask: function postNewTask(data, index) {
+      var _this = this;
+
+      var onSuccess = function onSuccess(d, url) {
+        return _this.postTaskSuccess(d, index, url);
+      };
+
+      var onFailure = function onFailure(e, url) {
+        return _this.postTaskFailure(e, index, url);
+      };
+
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.post.task, data, null, null, onSuccess, onFailure);
+    },
+    postUpdatedTask: function postUpdatedTask(data, index) {
+      var _this2 = this;
+
+      var onSuccess = function onSuccess(d, url) {
+        return _this2.postTaskSuccess(d, index, url);
+      };
+
+      var onFailure = function onFailure(e, url) {
+        return _this2.postTaskFailure(e, index, url);
+      };
+
+      var placeholders = {
+        "__id__": data.id
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.patch.task, data, placeholders, null, onSuccess, onFailure);
+    },
+    postTaskSuccess: function postTaskSuccess(data, index, url) {
+      this.$set(this.tasks, index, data);
+    },
+    postTaskFailure: function postTaskFailure(error, index, url) {
+      console.log("POST task failed for index " + index + " for url " + url);
+      console.log(error);
+    },
+    postTaskTrigger: function postTaskTrigger() {
+      this.postTask(this.tasks[this.selectedTaskIndex], this.selectedTaskIndex);
+    }
+  }
+});
 
 /***/ }),
 
@@ -55393,22 +55544,24 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var NetworkClient = {
-  idOrNil: function idOrNil(id) {
-    return id === undefined || id === null ? '' : id;
+  replacePlaceholders: function replacePlaceholders(url, holders) {
+    holders = holders || {};
+    holders['__userid__'] = NetworkClient.getUserId();
+    Object.keys(holders).forEach(function (p) {
+      return url = url.replace(p, holders[p]);
+    });
+    return url;
   },
   getUserId: function getUserId() {
     return document.querySelector('meta[name="highlight-user-id"]').getAttribute('content') || undefined;
   },
-  injectUserId: function injectUserId(url) {
-    return NetworkClient.getUserId() === undefined ? url : url.replace("__userid__", NetworkClient.getUserId());
-  },
-  request: function request(_ref, data, id, params, onSuccess, onError) {
+  request: function request(_ref, data, placeholders, params, onSuccess, onError) {
     var url = _ref.url,
         method = _ref.method,
         setAuthHeaders = _ref.setAuthHeaders;
     axios__WEBPACK_IMPORTED_MODULE_0___default.a.request({
       method: method,
-      url: "".concat(NetworkClient.injectUserId(url)).concat(NetworkClient.idOrNil(id)),
+      url: "".concat(NetworkClient.replacePlaceholders(url, placeholders)),
       data: data,
       params: params,
       responseType: 'json',
@@ -55417,9 +55570,9 @@ var NetworkClient = {
         'Content-Type': 'application/json'
       }
     }).then(function (response) {
-      onSuccess(response.data, "".concat(NetworkClient.injectUserId(url)).concat(NetworkClient.idOrNil(id)));
+      onSuccess(response.data, "".concat(NetworkClient.replacePlaceholders(url, placeholders)));
     }).catch(function (e) {
-      onError(e, "".concat(NetworkClient.injectUserId(url)).concat(NetworkClient.idOrNil(id)));
+      onError(e, "".concat(NetworkClient.replacePlaceholders(url, placeholders)));
       _events_event_bus__WEBPACK_IMPORTED_MODULE_1__["default"].$emit('errorFlashMessage', 'There are errors with your request');
     });
   },

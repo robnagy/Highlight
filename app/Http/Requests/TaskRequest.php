@@ -3,14 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Services\UserService;
-use App\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
-use Route;
+use Illuminate\Support\Facades\Log;
 
-class TagRequest extends FormRequest
+class TaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,12 +16,11 @@ class TagRequest extends FormRequest
      */
     public function authorize()
     {
-        // guest user allowed to modify guest tags
+        // guest user allowed to modify guest tasks
         if (Auth::guest() && $this->route('user_id') === "guest")
             return true;
-
-        // logged in user allowed to modify their own tags
-        if (Auth::user() && Auth::user()->id === (int) $this->route('user_id'))
+        // logged in user allowed to modify their own tasks
+        if (Auth::user() && Auth::id() === (int) $this->route('user_id'))
             return true;
 
         return false;
@@ -37,19 +33,19 @@ class TagRequest extends FormRequest
      */
     public function rules()
     {
+        $name = 'required|string|max:255';
+        $status = 'required|string|max:255|in:new,completed,editing,selected';
+        $expanded = 'boolean';
+        $subTasks = 'nullable|array';
+
         return [
-            'text' => [
-                'required',
-                'max:255',
-                Rule::unique('tags')->where(function ($query) {
-                    return $query
-                        ->where('text', $this->text)
-                        ->where('user_id', $this->user_id);
-                })
-            ],
-            'user_id' => [
-                'required',
-            ],
+            'name' => $name,
+            'status' => $status,
+            'expanded' => $expanded,
+            'subTasks' => $subTasks,
+            'subTasks.*.name' => $name,
+            'subTasks.*.status' => $status,
+            'subTasks.*.expanded' => $expanded,
         ];
     }
 
@@ -64,6 +60,7 @@ class TagRequest extends FormRequest
     {
         $data = parent::all($keys);
         $data['user_id'] = $this->getUserId();
+        Log::debug('Task request data is '.json_encode($data));
         return $data;
     }
 
@@ -76,6 +73,4 @@ class TagRequest extends FormRequest
     {
         return UserService::getUserIdFromRoute();
     }
-
-
 }

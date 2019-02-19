@@ -26,6 +26,10 @@ class RouteServiceProvider extends ServiceProvider
         //
 
         parent::boot();
+
+        // Bind the {task} URL segment used in routes
+        // files to Task model matching that id.
+        Route::model('task', \App\Task::class);
     }
 
     /**

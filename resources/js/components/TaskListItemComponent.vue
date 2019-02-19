@@ -139,8 +139,9 @@
             showExpand() {
                 switch (this.status) {
                     case TASK_STATUS.selected:
-                        if (this.type == TASKS_TYPE.main)
-                            return this.expanded === false;
+                        if (this.type == TASKS_TYPE.main) {
+                            return this.expanded == false;
+                        }
                     default:
                         return false;
                 }
@@ -148,7 +149,7 @@
             showContract() {
                 switch (this.status) {
                     case TASK_STATUS.selected:
-                        return this.expanded === true;
+                        return this.expanded == true;
                     default:
                         return false;
                 }

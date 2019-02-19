@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
 use App\Tag;
 Use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TagService extends EloquentService implements TagServiceInterface
@@ -16,12 +16,9 @@ class TagService extends EloquentService implements TagServiceInterface
     }
 
     /**
-     * Creates a Tag
-     *
-     * @param Request $request
-     * @return App\Tag
+     * @inheritDoc
      */
-    public function createFromRequest(Request $request) : Tag
+    public function createFromRequest(TagRequest $request) : Tag
     {
         $tagArray = $request->only($this->model->fillable);
         return $this->create($tagArray);

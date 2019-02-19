@@ -2,16 +2,21 @@ import Http from 'axios';
 import EventBus from '../events/event-bus';
 
 const NetworkClient = {
-  idOrNil: id => (id === undefined || id === null ? '' : id),
+
+  replacePlaceholders(url, holders) {
+    holders = holders || {};
+    holders['__userid__'] = NetworkClient.getUserId()
+    Object.keys(holders).forEach(p => url = url.replace(p, holders[p]));
+    return url;
+  },
 
   getUserId: () => document.querySelector('meta[name="highlight-user-id"]').getAttribute('content') || undefined,
 
-  injectUserId: (url) => (NetworkClient.getUserId() === undefined ? url : url.replace("__userid__", NetworkClient.getUserId())),
 
-  request: ({ url, method, setAuthHeaders }, data, id, params, onSuccess, onError) => {
+  request: ({ url, method, setAuthHeaders }, data, placeholders, params, onSuccess, onError) => {
     Http.request({
       method,
-      url: `${NetworkClient.injectUserId(url)}${NetworkClient.idOrNil(id)}`,
+      url: `${NetworkClient.replacePlaceholders(url, placeholders)}`,
       data,
       params,
       responseType: 'json',
@@ -21,10 +26,10 @@ const NetworkClient = {
       },
     })
       .then((response) => {
-        onSuccess(response.data, `${NetworkClient.injectUserId(url)}${NetworkClient.idOrNil(id)}`);
+        onSuccess(response.data, `${NetworkClient.replacePlaceholders(url, placeholders)}`);
       })
       .catch((e) => {
-        onError(e, `${NetworkClient.injectUserId(url)}${NetworkClient.idOrNil(id)}`)
+        onError(e, `${NetworkClient.replacePlaceholders(url, placeholders)}`)
         EventBus.$emit('errorFlashMessage', 'There are errors with your request');
       });
   },

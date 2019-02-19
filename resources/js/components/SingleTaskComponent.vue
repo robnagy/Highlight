@@ -23,6 +23,7 @@
                     @tasksUpdated="updateHandler($event, 'subTasks')"
                     @taskStatusChanged="changeSubTaskStatus($event)"
                     @taskNameChanged="updateHandler($event, 'name')"
+                    @taskAdded="newSubTaskAdded($event)"
                     show-header="false"
                     :type="taskListTypeSub"
                     button-variant="primary"
@@ -42,7 +43,7 @@
     import TagsComponent from "./TagsComponent";
     export default {
         components: { TaskList, TagsComponent },
-        props: ['name', 'status', 'expanded', 'subTasks', 'tags'],
+        props: ['name', 'status', 'expanded', 'subTasks', 'tags', 'id'],
         data() {
             return {
                 'showSubTasks': false,
@@ -53,8 +54,13 @@
             this.watchedSubTasks = _.cloneDeep(this.subTasks);
         },
         methods: {
+            newSubTaskAdded($event) {
+                let task = this.getNewTask();
+                task.subTasks.push($event);
+                this.updateParentTask(task);
+            },
             getNewTask() {
-                return TASK_GENERATOR(this.name, this.status, this.expanded, this.subTasks, this.tags);
+                return TASK_GENERATOR(this.name, this.status, this.expanded, this.subTasks, this.tags, this.id);
             },
             changeSubTaskStatus($event) {
                 let newSubTasks = _.cloneDeep(this.watchedSubTasks);
