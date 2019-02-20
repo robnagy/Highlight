@@ -2,7 +2,8 @@
 
 namespace App\Interfaces;
 
-Use App\Task;
+use App\Http\Requests\TaskRequest;
+use App\Models\Task;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -26,5 +27,5 @@ interface TaskServiceInterface extends EloquentServiceInterface
      * @param TaskRequest $request
      * @return Task
      */
-    public function updateFromRequest(Task $task, TaskRequest $request) : Task
+    public function updateFromRequest(Task $task, TaskRequest $request) : Task;
 }

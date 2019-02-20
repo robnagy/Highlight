@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
-use App\Tag;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\UserService;
@@ -71,7 +71,7 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Tag  $tag
+     * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function show(Tag $tag)
@@ -82,7 +82,7 @@ class TagController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Tag  $tag
+     * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function edit(Tag $tag)
@@ -94,7 +94,7 @@ class TagController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Tag  $tag
+     * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Tag $tag)
@@ -105,7 +105,7 @@ class TagController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Tag  $tag
+     * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function destroy(Tag $tag)

@@ -29,7 +29,7 @@ class RouteServiceProvider extends ServiceProvider
 
         // Bind the {task} URL segment used in routes
         // files to Task model matching that id.
-        Route::model('task', \App\Task::class);
+        Route::model('task', \App\Models\Task::class);
     }
 
     /**

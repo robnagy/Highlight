@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
-use App\Tag;
+use App\Models\Tag;
 Use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,6 +20,6 @@ class Tag extends Model
      */
     public function user()
     {
-        $this->belongsTo('App\User');
+        $this->belongsTo('App\Models\User');
     }
 }

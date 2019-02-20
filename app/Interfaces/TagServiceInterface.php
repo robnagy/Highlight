@@ -3,7 +3,7 @@
 namespace App\Interfaces;
 
 Use App\Http\Requests\TagRequest;
-Use App\Tag;
+Use App\Models\Tag;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
 

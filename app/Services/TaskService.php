@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Http\Requests\TaskRequest;
 use App\Interfaces\TaskServiceInterface;
+use App\Models\Task;
 use App\Services\EloquentService;
-use App\Task;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
 

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
 use App\Interfaces\TaskServiceInterface;
+use App\Models\Task;
 use App\Services\UserService;
-use App\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
