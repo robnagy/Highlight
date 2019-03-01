@@ -2,16 +2,16 @@ let TASKS_TEMPLATE = {
         "name": "",
         "status": "",
         "expanded": false,
-        "subTasks": [],
+        "subtasks": [],
         "tags": [],
 };
-let TASK_GENERATOR = (name, status, expanded, subTasks, tags, id) => {
+let TASK_GENERATOR = (name, status, expanded, subtasks, tags, id) => {
     console.log("task generator running");
     let newTask = _.cloneDeep(TASKS_TEMPLATE);
     if (name) newTask.name = name;
     if (status) newTask.status = status;
     if (expanded) newTask.expanded = expanded;
-    if (subTasks) newTask.subTasks = subTasks;
+    if (subtasks) newTask.subtasks = subtasks;
     if (tags) newTask.tags = tags;
     if (id) newTask.id = id;
     return newTask;
@@ -26,7 +26,7 @@ let TASK_STATUS = {
 };
 let TASKS_TYPE = {
     main: "main",
-    subTasks: "subTasks",
+    subtasks: "subtasks",
 };
 let TASKS_EVENT_NAME = {
     taskAdded: "taskAdded",
@@ -57,19 +57,6 @@ let TASKS_EVENT = {
         // tasks = _.cloneDeep(tasks);
         context.$emit(TASKS_EVENT_NAME.tasksUpdated, tasks)
     },
-};
-let TASKS_UTILITY = {
-    select(index, tasks, onSelect) {
-        tasks.forEach(function(task, index){
-            if (task.status === TASK_STATUS.selected) {
-                task.status = TASK_STATUS.new;
-                if (onSelect) onSelect(task, index);
-            }
-        });
-        if (tasks[index].status !== TASK_STATUS.completed) {
-            tasks[index].status = TASK_STATUS.selected;
-        }
-    }
 };
 
 export {TASKS_TEMPLATE, TASK_GENERATOR, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE, TASKS_UTILITY};

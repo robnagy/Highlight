@@ -1778,6 +1778,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
 /* harmony import */ var _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TaskListComponent.vue */ "./resources/js/components/TaskListComponent.vue");
 /* harmony import */ var _TagsComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TagsComponent */ "./resources/js/components/TagsComponent.vue");
+/* harmony import */ var _mixins_loadSubtasksMixin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mixins/loadSubtasksMixin */ "./resources/js/mixins/loadSubtasksMixin.js");
+/* harmony import */ var _mixins_saveSubtaskMixin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/saveSubtaskMixin */ "./resources/js/mixins/saveSubtaskMixin.js");
+/* harmony import */ var _mixins_deleteSubtaskMixin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mixins/deleteSubtaskMixin */ "./resources/js/mixins/deleteSubtaskMixin.js");
+/* harmony import */ var _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../mixins/selectTaskMixin */ "./resources/js/mixins/selectTaskMixin.js");
 //
 //
 //
@@ -1817,6 +1821,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+
+
+
+
 
 
 
@@ -1825,35 +1834,47 @@ __webpack_require__.r(__webpack_exports__);
     TaskList: _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     TagsComponent: _TagsComponent__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
-  props: ['name', 'status', 'expanded', 'subTasks', 'tags', 'id'],
+  mixins: [_mixins_deleteSubtaskMixin__WEBPACK_IMPORTED_MODULE_5__["default"], _mixins_loadSubtasksMixin__WEBPACK_IMPORTED_MODULE_3__["default"], _mixins_saveSubtaskMixin__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_6__["default"]],
+  props: ['name', 'status', 'expanded', 'tags', 'id'],
   data: function data() {
     return {
-      'showSubTasks': false,
-      'watchedSubTasks': []
+      'subtasks': [],
+      'showSubtasks': false,
+      'watchedSubtasks': []
     };
   },
   mounted: function mounted() {
-    this.watchedSubTasks = _.cloneDeep(this.subTasks);
+    this.watchedSubtasks = _.cloneDeep(this.subtasks);
   },
   methods: {
-    newSubTaskAdded: function newSubTaskAdded($event) {
-      var task = this.getNewTask();
-      task.subTasks.push($event);
-      this.updateParentTask(task);
+    deletedSubtask: function deletedSubtask($event) {
+      this.deleteSubtask($event, this.id);
+    },
+    newSubtaskAdded: function newSubtaskAdded($event) {
+      var index = this.subtasks.push($event) - 1;
+      this.postSubtask($event, index);
     },
     getNewTask: function getNewTask() {
-      return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subTasks, this.tags, this.id);
+      return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subtasks, this.tags, this.id);
     },
-    changeSubTaskStatus: function changeSubTaskStatus($event) {
-      var newSubTasks = _.cloneDeep(this.watchedSubTasks);
+    changeSubtaskStatus: function changeSubtaskStatus($event) {
+      var _this = this;
+
+      var onDeselect = function onDeselect(task, index) {
+        _this.postSubtask(task, index);
+      };
 
       if ($event.status == _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected) {
-        _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_UTILITY"].select($event.index, newSubTasks);
+        var onChange = function onChange(task, index) {
+          _this.postSubtask(task, index);
+        };
+
+        this.selectATask($event.index, this.subtasks, onChange);
       } else {
-        newSubTasks[$event.index].status = $event.status;
+        this.$set(this.subtasks[$event.index], 'status', $event.status);
       }
 
-      this.updateHandler(newSubTasks, "subTasks");
+      this.postSubtask(this.subtasks[$event.index], $event.index);
     },
     updateHandler: function updateHandler($event, type) {
       var newTask = this.getNewTask();
@@ -1861,27 +1882,28 @@ __webpack_require__.r(__webpack_exports__);
       this.updateParentTask(newTask);
     },
     updateParentTask: function updateParentTask(task) {
+      console.log('updateParentTask');
       _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskUpdated(this, task);
     }
   },
   computed: {
-    showSubTaskText: function showSubTaskText() {
-      if (this.subTasks.count > 0) {
-        return "View sub-tasks";
+    showSubtaskText: function showSubtaskText() {
+      if (this.subtasks.count > 0) {
+        return "View subtasks";
       } else {
-        return "Add sub-tasks";
+        return "Add subtasks";
       }
     },
     taskListTypeSub: function taskListTypeSub() {
-      return _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subTasks;
+      return _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subtasks;
     },
     GET_USER_ID: function GET_USER_ID() {
       return this.$store.getters.GET_USER_ID;
     }
   },
   watch: {
-    "subTasks": function subTasks(newVal, oldVal) {
-      this.watchedSubTasks = newVal;
+    "subtasks": function subtasks(newVal, oldVal) {
+      this.watchedSubtasks = newVal;
     }
   }
 });
@@ -2063,6 +2085,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2070,7 +2093,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       "newTaskName": "",
-      "subTaskStructure": {
+      "subtaskStructure": {
         "name": "",
         "status": ""
       },
@@ -2087,12 +2110,12 @@ __webpack_require__.r(__webpack_exports__);
         return "Add a task";
       }
 
-      return "Add a sub-task";
+      return "Add a subtask";
     },
     showAddTasks: function showAddTasks() {
       switch (this.type) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].main:
-        case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subTasks:
+        case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subtasks:
           return true;
 
         default:
@@ -2103,7 +2126,7 @@ __webpack_require__.r(__webpack_exports__);
       return _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].main;
     },
     taskListTypeSub: function taskListTypeSub() {
-      return _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subTasks;
+      return _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subtasks;
     }
   },
   methods: {
@@ -2128,6 +2151,12 @@ __webpack_require__.r(__webpack_exports__);
       this.$emit('taskNameChanged', {
         index: index,
         'name': action
+      });
+    },
+    deletedTask: function deletedTask(index, $event) {
+      this.$emit('taskDeleted', {
+        index: index,
+        'id': $event.id
       });
     },
     toggleExpanded: function toggleExpanded() {
@@ -2250,7 +2279,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['name', 'status', 'type', 'expanded', 'subTasks'],
+  props: ['name', 'status', 'type', 'expanded', 'subtasks', 'id'],
   data: function data() {
     return {
       localName: "",
@@ -2349,11 +2378,13 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    deleted: function deleted() {
+      this.$emit('taskDeleted', {
+        'id': this.id
+      });
+    },
     markComplete: function markComplete() {
       this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].completed);
-    },
-    markDeleted: function markDeleted() {
-      this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].deleted);
     },
     markNew: function markNew() {
       this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new);
@@ -2396,8 +2427,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
 /* harmony import */ var _components_TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/TaskListComponent.vue */ "./resources/js/components/TaskListComponent.vue");
 /* harmony import */ var _components_SingleTaskComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/SingleTaskComponent */ "./resources/js/components/SingleTaskComponent.vue");
-/* harmony import */ var _mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mixins/loadTasksMixin */ "./resources/js/mixins/loadTasksMixin.js");
-/* harmony import */ var _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/saveTaskMixin */ "./resources/js/mixins/saveTaskMixin.js");
+/* harmony import */ var _mixins_deleteTaskMixin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mixins/deleteTaskMixin */ "./resources/js/mixins/deleteTaskMixin.js");
+/* harmony import */ var _mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/loadTasksMixin */ "./resources/js/mixins/loadTasksMixin.js");
+/* harmony import */ var _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mixins/saveTaskMixin */ "./resources/js/mixins/saveTaskMixin.js");
+/* harmony import */ var _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../mixins/selectTaskMixin */ "./resources/js/mixins/selectTaskMixin.js");
 //
 //
 //
@@ -2424,6 +2457,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+
+
 
 
 
@@ -2442,7 +2478,7 @@ __webpack_require__.r(__webpack_exports__);
     SingleTask: _components_SingleTaskComponent__WEBPACK_IMPORTED_MODULE_2__["default"],
     TaskList: _components_TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  mixins: [_mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_3__["default"], _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_4__["default"]],
+  mixins: [_mixins_deleteTaskMixin__WEBPACK_IMPORTED_MODULE_3__["default"], _mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_5__["default"], _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_6__["default"]],
   mounted: function mounted() {},
   methods: {
     addTask: function addTask($event) {
@@ -2482,18 +2518,25 @@ __webpack_require__.r(__webpack_exports__);
         this.postTask(this.tasks[index], index);
       }
     },
+    deletedTask: function deletedTask($event, index) {
+      this.deleteTask($event.id, $event.index);
+
+      if (this.selectedTaskIndex == $event.index) {
+        this.selectedTaskIndex = null;
+      }
+    },
     changeTaskName: function changeTaskName(data) {
       var index = data.index;
       this.tasks[index].name = data.name;
       this.postTask(this.tasks[index], index);
     },
-    changeSubTaskName: function changeSubTaskName(data) {
+    changeSubtaskName: function changeSubtaskName(data) {
       var index = data.index;
-      this.tasks[this.selectedTaskIndex].subTasks[index].name = data.name;
+      this.tasks[this.selectedTaskIndex].subtasks[index].name = data.name;
     },
     selectTask: function selectTask(index) {
       this.selectedTaskIndex = null;
-      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_UTILITY"].select(index, this.tasks, this.postTask);
+      this.selectATask(index, this.tasks, this.postTask);
       this.selectedTaskIndex = index;
     },
     taskExpanded: function taskExpanded() {
@@ -2542,16 +2585,16 @@ __webpack_require__.r(__webpack_exports__);
         this.postTaskTrigger();
       }
     },
-    subTaskName: function subTaskName() {
+    subtaskName: function subtaskName() {
       if (this.selectedTaskIndex !== null) {
         return this.tasks[this.selectedTaskIndex].name;
       }
 
       return "Select a main task";
     },
-    subTasks: function subTasks() {
+    subtasks: function subtasks() {
       if (this.selectedTaskIndex !== null) {
-        return this.tasks[this.selectedTaskIndex].subTasks;
+        return this.tasks[this.selectedTaskIndex].subtasks;
       }
 
       return [];
@@ -43026,7 +43069,7 @@ var render = function() {
           [
             _c("task-list", {
               attrs: {
-                tasks: _vm.watchedSubTasks,
+                tasks: _vm.watchedSubtasks,
                 title: "Sub-Tasks",
                 "show-header": "false",
                 type: _vm.taskListTypeSub,
@@ -43035,16 +43078,19 @@ var render = function() {
               },
               on: {
                 tasksUpdated: function($event) {
-                  _vm.updateHandler($event, "subTasks")
+                  _vm.updateHandler($event, "subtasks")
+                },
+                taskDeleted: function($event) {
+                  _vm.deletedSubtask($event)
                 },
                 taskStatusChanged: function($event) {
-                  _vm.changeSubTaskStatus($event)
+                  _vm.changeSubtaskStatus($event)
                 },
                 taskNameChanged: function($event) {
                   _vm.updateHandler($event, "name")
                 },
                 taskAdded: function($event) {
-                  _vm.newSubTaskAdded($event)
+                  _vm.newSubtaskAdded($event)
                 }
               }
             })
@@ -43171,6 +43217,9 @@ var render = function() {
                   {
                     attrs: { index: index, type: _vm.type },
                     on: {
+                      taskDeleted: function($event) {
+                        _vm.deletedTask(index, $event)
+                      },
                       taskStatusChanged: function($event) {
                         _vm.changeStatus(index, $event)
                       },
@@ -43334,7 +43383,7 @@ var render = function() {
                       }
                     }
                   },
-                  [_c("i", { staticClass: "far fa-angle-double-right" })]
+                  [_c("i", { staticClass: "fas fa-angle-double-right" })]
                 )
               : _vm._e(),
             _vm._v(" "),
@@ -43344,7 +43393,7 @@ var render = function() {
                   {
                     staticClass: "btn float-right",
                     class: _vm.taskClass,
-                    attrs: { title: "Expand task" },
+                    attrs: { title: "Collapse task" },
                     on: {
                       click: function($event) {
                         $event.stopPropagation()
@@ -43352,7 +43401,7 @@ var render = function() {
                       }
                     }
                   },
-                  [_c("i", { staticClass: "far fa-angle-double-left" })]
+                  [_c("i", { staticClass: "fas fa-angle-double-left" })]
                 )
               : _vm._e(),
             _vm._v(" "),
@@ -43366,11 +43415,11 @@ var render = function() {
                     on: {
                       click: function($event) {
                         $event.stopPropagation()
-                        return _vm.markDeleted($event)
+                        return _vm.deleted($event)
                       }
                     }
                   },
-                  [_c("i", { staticClass: "far fa-trash" })]
+                  [_c("i", { staticClass: "fas fa-trash" })]
                 )
               : _vm._e(),
             _vm._v(" "),
@@ -43388,7 +43437,7 @@ var render = function() {
                       }
                     }
                   },
-                  [_c("i", { staticClass: "far fa-check" })]
+                  [_c("i", { staticClass: "fas fa-check" })]
                 )
               : _vm._e(),
             _vm._v(" "),
@@ -43507,6 +43556,9 @@ var render = function() {
             on: {
               taskAdded: function($event) {
                 _vm.addTask($event)
+              },
+              taskDeleted: function($event) {
+                _vm.deletedTask($event)
               },
               taskStatusChanged: function($event) {
                 _vm.changeTaskStatus($event)
@@ -55213,6 +55265,10 @@ var baseUrl = "".concat("http://127.0.0.1:8000");
 /* harmony default export */ __webpack_exports__["default"] = ({
   v1: {
     get: {
+      subtasks: {
+        url: "".concat(baseUrl, "/user/__userid__/task/__taskid__/subtasks"),
+        method: 'GET'
+      },
       tags: {
         url: "".concat(baseUrl, "/user/__userid__/tags"),
         method: 'GET'
@@ -55223,19 +55279,37 @@ var baseUrl = "".concat("http://127.0.0.1:8000");
       }
     },
     patch: {
+      subtask: {
+        url: "".concat(baseUrl, "/user/__userid__/task/__taskid__/subtask/__subtaskid__"),
+        method: 'PATCH'
+      },
       task: {
         url: "".concat(baseUrl, "/user/__userid__/task/__id__"),
         method: 'PATCH'
       }
     },
     post: {
-      task: {
-        url: "".concat(baseUrl, "/user/__userid__/task"),
+      subtask: {
+        url: "".concat(baseUrl, "/user/__userid__/task/__taskid__/subtask"),
         method: 'POST'
       },
       tag: {
         url: "".concat(baseUrl, "/user/__userid__/task"),
         method: 'POST'
+      },
+      task: {
+        url: "".concat(baseUrl, "/user/__userid__/task"),
+        method: 'POST'
+      }
+    },
+    delete: {
+      subtask: {
+        url: "".concat(baseUrl, "/user/__userid__/task/__taskid__/subtask/__subtaskid__"),
+        method: 'DELETE'
+      },
+      task: {
+        url: "".concat(baseUrl, "/user/__userid__/task/__taskid__"),
+        method: 'DELETE'
       }
     }
   }
@@ -55263,11 +55337,11 @@ var TASKS_TEMPLATE = {
   "name": "",
   "status": "",
   "expanded": false,
-  "subTasks": [],
+  "subtasks": [],
   "tags": []
 };
 
-var TASK_GENERATOR = function TASK_GENERATOR(name, status, expanded, subTasks, tags, id) {
+var TASK_GENERATOR = function TASK_GENERATOR(name, status, expanded, subtasks, tags, id) {
   console.log("task generator running");
 
   var newTask = _.cloneDeep(TASKS_TEMPLATE);
@@ -55275,7 +55349,7 @@ var TASK_GENERATOR = function TASK_GENERATOR(name, status, expanded, subTasks, t
   if (name) newTask.name = name;
   if (status) newTask.status = status;
   if (expanded) newTask.expanded = expanded;
-  if (subTasks) newTask.subTasks = subTasks;
+  if (subtasks) newTask.subtasks = subtasks;
   if (tags) newTask.tags = tags;
   if (id) newTask.id = id;
   return newTask;
@@ -55291,7 +55365,7 @@ var TASK_STATUS = {
 };
 var TASKS_TYPE = {
   main: "main",
-  subTasks: "subTasks"
+  subtasks: "subtasks"
 };
 var TASKS_EVENT_NAME = {
   taskAdded: "taskAdded",
@@ -55326,20 +55400,6 @@ var TASKS_EVENT = {
     context.$emit(TASKS_EVENT_NAME.tasksUpdated, tasks);
   }
 };
-var TASKS_UTILITY = {
-  select: function select(index, tasks, onSelect) {
-    tasks.forEach(function (task, index) {
-      if (task.status === TASK_STATUS.selected) {
-        task.status = TASK_STATUS.new;
-        if (onSelect) onSelect(task, index);
-      }
-    });
-
-    if (tasks[index].status !== TASK_STATUS.completed) {
-      tasks[index].status = TASK_STATUS.selected;
-    }
-  }
-};
 
 
 /***/ }),
@@ -55358,6 +55418,139 @@ __webpack_require__.r(__webpack_exports__);
 
 var EventBus = new vue__WEBPACK_IMPORTED_MODULE_0___default.a();
 /* harmony default export */ __webpack_exports__["default"] = (EventBus);
+
+/***/ }),
+
+/***/ "./resources/js/mixins/deleteSubtaskMixin.js":
+/*!***************************************************!*\
+  !*** ./resources/js/mixins/deleteSubtaskMixin.js ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config_api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/api */ "./resources/js/config/api.js");
+/* harmony import */ var _utils_network_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/network_client */ "./resources/js/utils/network_client.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  methods: {
+    deleteSubtask: function deleteSubtask(data, task_id) {
+      var _this = this;
+
+      var onSuccess = function onSuccess(result, url) {
+        _this.deleteOnSuccess(result, url, data.index);
+      };
+
+      var onFailure = function onFailure(result, url) {
+        _this.deleteOnError(result, url, data.index);
+      };
+
+      var placeholders = {
+        '__taskid__': task_id,
+        '__subtaskid__': data.id
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.delete.subtask, null, placeholders, null, onSuccess, onFailure);
+    },
+    deleteOnSuccess: function deleteOnSuccess(data, url, index) {
+      if (data) {
+        this.subtasks.splice(index, 1);
+      }
+    },
+    deleteOnError: function deleteOnError(error, url, index) {
+      // display error?
+      console.log('onDeleteFailure triggered for index ' + index + ' at url ' + url + ' ' + error);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/mixins/deleteTaskMixin.js":
+/*!************************************************!*\
+  !*** ./resources/js/mixins/deleteTaskMixin.js ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _utils_network_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/network_client */ "./resources/js/utils/network_client.js");
+/* harmony import */ var _config_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/api */ "./resources/js/config/api.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  methods: {
+    deleteTask: function deleteTask(task_id, index) {
+      var _this = this;
+
+      var onSuccess = function onSuccess(data, url) {
+        _this.deleteTaskSuccess(data, url, index);
+      };
+
+      var onFailure = function onFailure(error, url) {
+        _this.deleteTaskFailure(error, url, index);
+      };
+
+      var placeHolders = {
+        '__taskid__': task_id
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_0__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_1__["default"].v1.delete.task, null, placeHolders, null, onSuccess, onFailure);
+    },
+    deleteTaskSuccess: function deleteTaskSuccess(data, url, index) {
+      this.tasks.splice(index, 1);
+    },
+    deleteTaskFailure: function deleteTaskFailure(error, url, index) {
+      console.log('task delete failure, index:' + index + ', url:' + url);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/mixins/loadSubtasksMixin.js":
+/*!**************************************************!*\
+  !*** ./resources/js/mixins/loadSubtasksMixin.js ***!
+  \**************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _utils_network_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/network_client */ "./resources/js/utils/network_client.js");
+/* harmony import */ var _config_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/api */ "./resources/js/config/api.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {};
+  },
+  created: function created() {
+    this.triggerLoadSubTasks();
+  },
+  methods: {
+    subtasksGetSuccess: function subtasksGetSuccess(data) {
+      this.subtasks = data;
+    },
+    subtasksGetFailure: function subtasksGetFailure(e, url) {
+      console.log(e);
+      console.log(url);
+    },
+    triggerLoadSubTasks: function triggerLoadSubTasks() {
+      var placeholders = {
+        '__taskid__': this.id
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_0__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_1__["default"].v1.get.subtasks, null, placeholders, null, this.subtasksGetSuccess, this.subtasksGetFailure);
+    }
+  },
+  watch: {
+    id: function id(older, newer) {
+      this.subtasks = [];
+      this.triggerLoadSubTasks();
+    }
+  }
+});
 
 /***/ }),
 
@@ -55383,12 +55576,78 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     tasksGetSuccess: function tasksGetSuccess(data) {
-      this.tasks = data;
+      this.tasks = data.data;
       this.updateSelectedTaskIndex();
     },
     tasksGetFailure: function tasksGetFailure(e, url) {
       console.log(e);
       console.log(url);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/mixins/saveSubtaskMixin.js":
+/*!*************************************************!*\
+  !*** ./resources/js/mixins/saveSubtaskMixin.js ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config_api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/api */ "./resources/js/config/api.js");
+/* harmony import */ var _utils_network_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/network_client */ "./resources/js/utils/network_client.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {};
+  },
+  methods: {
+    postSubtask: function postSubtask(data, index) {
+      if (data.hasOwnProperty('id')) this.patchSubtask(data, index);else this.postNewSubtask(data, index);
+    },
+    postNewSubtask: function postNewSubtask(data, index) {
+      var _this = this;
+
+      var onSuccess = function onSuccess(d, url) {
+        return _this.postSubtaskSuccess(d, index, url);
+      };
+
+      var onFailure = function onFailure(e, url) {
+        return _this.postSubtaskFailure(e, index, url);
+      };
+
+      var placeholders = {
+        "__taskid__": this.id
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.post.subtask, data, placeholders, null, onSuccess, onFailure);
+    },
+    patchSubtask: function patchSubtask(data, index) {
+      var _this2 = this;
+
+      var onSuccess = function onSuccess(d, url) {
+        return _this2.postSubtaskSuccess(d, index, url);
+      };
+
+      var onFailure = function onFailure(e, url) {
+        return _this2.postSubtaskFailure(e, index, url);
+      };
+
+      var placeholders = {
+        "__subtaskid__": data.id,
+        "__taskid__": this.id
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.patch.subtask, data, placeholders, null, onSuccess, onFailure);
+    },
+    postSubtaskSuccess: function postSubtaskSuccess(response, index, url) {
+      this.$set(this.subtasks, index, response.data);
+    },
+    postSubtaskFailure: function postSubtaskFailure(error, index, url) {
+      console.log("POST subtask failed for index " + index + " for url " + url);
+      console.log(error);
     }
   }
 });
@@ -55445,15 +55704,53 @@ __webpack_require__.r(__webpack_exports__);
       };
       _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.patch.task, data, placeholders, null, onSuccess, onFailure);
     },
-    postTaskSuccess: function postTaskSuccess(data, index, url) {
-      this.$set(this.tasks, index, data);
+    postTaskSuccess: function postTaskSuccess(response, index, url) {
+      this.$set(this.tasks, index, response.data);
     },
-    postTaskFailure: function postTaskFailure(error, index, url) {
+    postTaskFailure: function postTaskFailure(response, index, url) {
       console.log("POST task failed for index " + index + " for url " + url);
-      console.log(error);
+      console.log(response);
     },
     postTaskTrigger: function postTaskTrigger() {
       this.postTask(this.tasks[this.selectedTaskIndex], this.selectedTaskIndex);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/mixins/selectTaskMixin.js":
+/*!************************************************!*\
+  !*** ./resources/js/mixins/selectTaskMixin.js ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  methods: {
+    selectATask: function selectATask(taskIndex, tasks, onChange) {
+      var taskAlreadySelected = tasks[taskIndex].status === _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected; // iterate through all tasks and deselect them
+
+      this.mixinDeselectAllTasks(tasks, onChange);
+
+      if (!taskAlreadySelected) {
+        if (tasks[taskIndex].status !== _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].completed) {
+          tasks[taskIndex].status = _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected;
+          if (onChange) onChange(tasks[taskIndex], taskIndex);
+        }
+      }
+    },
+    mixinDeselectAllTasks: function mixinDeselectAllTasks(tasks, onChange) {
+      tasks.forEach(function (task, index) {
+        if (task.status === _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected) {
+          task.status = _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new;
+          if (onChange) onChange(task, index);
+        }
+      });
     }
   }
 });

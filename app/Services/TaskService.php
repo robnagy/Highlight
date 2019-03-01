@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\TaskRequest;
 use App\Interfaces\TaskServiceInterface;
+use App\Models\Subtask;
 use App\Models\Task;
 use App\Services\EloquentService;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,22 +17,16 @@ class TaskService extends EloquentService implements TaskServiceInterface
         parent::__construct($task);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function createFromRequest(TaskRequest $request) : Task
+    public function verifyUserTask(int $user_id, int $task_id) : bool
     {
-        $taskArray = $request->only($this->model->fillable);
-        return $this->create($taskArray);
+        $count = Task::where('user_id', $user_id)->where('id', $task_id)->count();
+        return $count ? true : false;
     }
 
-    /**
-     *@inheritDoc
-     */
-    public function updateFromRequest(Task $task, TaskRequest $request) : Task
+    public function deleteTask(int $task_id) : bool
     {
-        $taskArray = $request->only($this->model->fillable);
-        return $this->update($task, $taskArray);
+        //delete all subtasks
+        Subtask::where('task_id', $task_id)->delete();
+        return (bool) Task::where('id', $task_id)->delete();
     }
-
 }

@@ -11,7 +11,7 @@ class Task extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'status', 'user_id', 'expanded', 'subTasks'];
+    protected $fillable = ['name', 'status', 'user_id', 'expanded', 'subtasks'];
 
     /**
      * The attributes that should be cast to native types.
@@ -19,7 +19,7 @@ class Task extends Model
      * @var array
      */
     protected $casts = [
-        'subTasks' => 'array',
+        'subtasks' => 'array',
     ];
 
     /**
@@ -30,5 +30,15 @@ class Task extends Model
     public function tags()
     {
         return $this->belongsToMany('App\Models\Tag');
+    }
+
+    /**
+     * Sets the has many relationship with Subtasks
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subtasks()
+    {
+        return $this->hasMany('App\Models\Subtask');
     }
 }

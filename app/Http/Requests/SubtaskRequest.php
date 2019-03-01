@@ -2,16 +2,16 @@
 
 namespace App\Http\Requests;
 
-use App\Services\UserService;
+use App\Traits\RequestAuthorizeTrait;
+use App\Traits\RouteTaskIdTrait;
+use App\Traits\RouteUserIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
-class TaskRequest extends FormRequest
+class SubtaskRequest extends FormRequest
 {
-    use \App\Traits\RequestAuthorizeTrait;
-    use \App\Traits\RouteTaskIdTrait;
-    use \App\Traits\RouteUserIdTrait;
+    use RequestAuthorizeTrait;
+    use RouteTaskIdTrait;
+    use RouteUserIdTrait;
 
     /**
      * Determine if the user can proceed with this request.
@@ -21,9 +21,9 @@ class TaskRequest extends FormRequest
     public function authorize()
     {
         if ($this->authorizeUserId() &&
-            $this->authorizeUserIdTaskId($this->translateRouteUserId(), $this->getTaskIdFromRoute())
-            )
-            return true;
+            $this->authorizeUserIdTaskId($this->translateRouteUserId(),$this->task_id)) {
+                return true;
+            }
 
         return false;
     }
@@ -37,14 +37,12 @@ class TaskRequest extends FormRequest
     {
         $name = 'required|string|max:255';
         $status = 'required|string|max:255|in:new,completed,editing,selected';
-        $expanded = 'boolean';
-        $user_id = 'exists:users,id';
 
         return [
             'name' => $name,
             'status' => $status,
-            'expanded' => $expanded,
-            'user_id' => $user_id,
+            'task_id' => 'required|exists:tasks,id',
+            'user_id' => 'exists:users,id',
         ];
     }
 

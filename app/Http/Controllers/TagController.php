@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
 use App\Models\Tag;
+use App\Services\UserService;
+use App\Traits\RouteUserIdTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Services\UserService;
 
 class TagController extends Controller
 {
+    use RouteUserIdTrait;
+
     /**
-     * Tag service
+     * Inject Tag service
      *
      * @var TagServiceInterface
      */
@@ -34,7 +37,7 @@ class TagController extends Controller
     }
 
     /**
-     * Display all tags belonging to user_id. $user_id can be either
+     * Display all Tags belonging to user_id. $user_id can be either
      * an existing user_id, or be the string identifier
      * for the guest user which is "guest".
      *
@@ -42,23 +45,13 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function indexFor($user_id) {
-        $user_id = UserService::checkUserId($user_id);
+        $user_id = $this->checkUserId($user_id);
         return $this->tagService->allForUser($user_id)
             ->sortBy('text')->values();
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a newly created Tag in storage.
      *
      * @param TagRequest $request
      * @return \Illuminate\Http\Response
@@ -69,47 +62,28 @@ class TagController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Updates the Tag model. Model is resolved using route model
+     * binding that links the {tag} url segment to a tag id.
      *
-     * @param  \App\Models\Tag  $tag
+     * @param TagRequest $request
+     * @param mixed $user_id
+     * @param Tag $tag
      * @return \Illuminate\Http\Response
      */
-    public function show(Tag $tag)
+    public function update(TagRequest $request, $user_id, Tag $tag)
     {
-        //
+        return $this->taskService->updateFromRequest($tag, $request);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Tag  $tag
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Tag $tag)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Tag  $tag
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Tag $tag)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
+     * Removes the Tag from storage.
      *
      * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
     public function destroy(Tag $tag)
     {
-        //
+        $response = [ 'meta' => [ 'message' => 'Tag deleted: ' . $tag->delete() ] ];
+        return $response;
     }
 }

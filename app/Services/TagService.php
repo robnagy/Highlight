@@ -15,12 +15,4 @@ class TagService extends EloquentService implements TagServiceInterface
         parent::__construct($tag);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function createFromRequest(TagRequest $request) : Tag
-    {
-        $tagArray = $request->only($this->model->fillable);
-        return $this->create($tagArray);
-    }
 }

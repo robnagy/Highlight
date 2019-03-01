@@ -10,7 +10,7 @@ export default {
     },
     methods: {
         tasksGetSuccess(data) {
-            this.tasks = data;
+            this.tasks = data.data;
             this.updateSelectedTaskIndex();
         },
         tasksGetFailure(e, url) {

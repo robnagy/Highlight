@@ -6,11 +6,14 @@ use App\Http\Requests\TaskRequest;
 use App\Interfaces\TaskServiceInterface;
 use App\Models\Task;
 use App\Services\UserService;
+use App\Traits\RouteUserIdTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
+    use RouteUserIdTrait;
+
     /**
      * Task Service Interface
      *
@@ -31,8 +34,9 @@ class TaskController extends Controller
      */
     public function indexForUser($user_id)
     {
-        $user_id = UserService::checkUserId($user_id);
-        return $this->taskService->allForUserWith($user_id, ['tags']);
+        $user_id = $this->checkUserId($user_id);
+        $response = [ 'data' => $this->taskService->allForUserWith($user_id, ['tags']) ];
+        return $response;
     }
 
 
@@ -44,7 +48,8 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $request)
     {
-        return $this->taskService->createFromRequest($request);
+        $response = [ 'data' => $this->taskService->createFromRequest($request) ];
+        return $response;
     }
 
     /**
@@ -58,6 +63,21 @@ class TaskController extends Controller
      */
     public function update(TaskRequest $request, $user_id, Task $task)
     {
-        return $this->taskService->updateFromRequest($task, $request);
+        $response = [ 'data' => $this->taskService->updateFromRequest($task, $request) ];
+        return $response;
+    }
+
+    /**
+     * Deletes a task. Runs the delete method on the eloquent model.
+     *
+     * @param mixed $user_id
+     * @param string $task_id
+     * @return \Illuminate\Http\Response
+     */
+    public function delete($user_id, $task_id)
+    {
+        $response = (string) $this->taskService->deleteTask( (int) $task_id);
+        $response = [ 'meta' => [ 'message' => 'Task deleted: ' . $response ] ];
+        return $response;
     }
 }

@@ -6,7 +6,8 @@ use App\Interfaces\EloquentServiceInterface;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class EloquentService implements EloquentServiceInterface
 {
@@ -27,12 +28,26 @@ class EloquentService implements EloquentServiceInterface
         $this->model = $model;
     }
 
-    public function find(int $id) : Model {
+    public function find(int $id) : Model
+    {
         return $this->model->findOrFail($id);
     }
 
-    public function create(array $modelAttributes) : Model {
+    public function create(array $modelAttributes) : Model
+    {
         return $this->model->create($modelAttributes);
+    }
+
+    public function createFromRequest(FormRequest $request) : Model
+    {
+        $itemArray = $request->only($this->model->getFillable());
+        return $this->create($itemArray);
+    }
+
+    public function updateFromRequest(Model $model, FormRequest $request) : Model
+    {
+        $itemArray = $request->only($this->model->getFillable());
+        return $this->update($model, $itemArray);
     }
 
     public function new(array $modelAttributes) : Model {
@@ -62,6 +77,11 @@ class EloquentService implements EloquentServiceInterface
     public function allForUserWith(int $user_id, array $with) : Collection
     {
         return $this->model->with($with)->where('user_id', $user_id)->get();
+    }
+
+    public function where(string $column, int $value) : Collection
+    {
+        return $this->model->where($column, $value)->get();
     }
 
 }

@@ -5,6 +5,7 @@
                 <task-list
                         :tasks="tasks"
                         @taskAdded="addTask($event)"
+                        @taskDeleted="deletedTask($event)"
                         @taskStatusChanged="changeTaskStatus($event)"
                         @taskNameChanged="changeTaskName($event)"
                         @taskToggleExpanded="taskToggleExpanded()"
@@ -25,11 +26,13 @@
 </template>
 
 <script>
-    import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE, TASKS_UTILITY} from '../config/tasks';
+    import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE} from '../config/tasks';
     import TaskList from '../components/TaskListComponent.vue';
     import SingleTask from '../components/SingleTaskComponent';
+    import deleteTask from '../mixins/deleteTaskMixin';
     import loadTasksMixin from '../mixins/loadTasksMixin';
     import saveTaskMixin from '../mixins/saveTaskMixin';
+    import selectTaskMixin from '../mixins/selectTaskMixin';
     export default {
         data() {
             return {
@@ -43,7 +46,7 @@
             SingleTask,
             TaskList
         },
-        mixins: [ loadTasksMixin, saveTaskMixin ],
+        mixins: [ deleteTask, loadTasksMixin, saveTaskMixin, selectTaskMixin ],
         mounted() {},
         methods: {
             addTask($event) {
@@ -76,18 +79,24 @@
                     this.postTask(this.tasks[index], index);
                 }
             },
+            deletedTask($event, index) {
+                this.deleteTask($event.id, $event.index);
+                if (this.selectedTaskIndex == $event.index) {
+                    this.selectedTaskIndex = null;
+                }
+            },
             changeTaskName(data) {
                 let index = data.index;
                 this.tasks[index].name = data.name;
                 this.postTask(this.tasks[index], index);
             },
-            changeSubTaskName(data) {
+            changeSubtaskName(data) {
                 let index = data.index;
-                this.tasks[this.selectedTaskIndex].subTasks[index].name = data.name;
+                this.tasks[this.selectedTaskIndex].subtasks[index].name = data.name;
             },
             selectTask(index) {
                 this.selectedTaskIndex = null;
-                TASKS_UTILITY.select(index, this.tasks, this.postTask);
+                this.selectATask(index, this.tasks, this.postTask);
                 this.selectedTaskIndex = index;
             },
             taskExpanded() {
@@ -132,15 +141,15 @@
                     this.postTaskTrigger();
                 }
             },
-            subTaskName: function() {
+            subtaskName: function() {
                 if (this.selectedTaskIndex !== null) {
                     return this.tasks[this.selectedTaskIndex].name;
                 }
                 return "Select a main task";
             },
-            subTasks: function() {
+            subtasks: function() {
                 if (this.selectedTaskIndex !== null) {
-                    return this.tasks[this.selectedTaskIndex].subTasks;
+                    return this.tasks[this.selectedTaskIndex].subtasks;
                 }
                 return [];
             },

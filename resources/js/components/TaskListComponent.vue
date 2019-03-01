@@ -14,6 +14,7 @@
                         v-bind="task"
                         :index="index"
                         :type="type"
+                        @taskDeleted="deletedTask(index, $event)"
                         @taskStatusChanged="changeStatus(index, $event)"
                         @taskNameChanged="changeName(index, $event)"
                         @taskToggleExpanded="toggleExpanded()"
@@ -44,7 +45,7 @@
         data() {
             return {
                 "newTaskName": "",
-                "subTaskStructure": {
+                "subtaskStructure": {
                     "name": "",
                     "status": ""
                 },
@@ -60,12 +61,12 @@
                 if (this.type === TASKS_TYPE.main) {
                     return "Add a task";
                 }
-                return "Add a sub-task";
+                return "Add a subtask";
             },
             showAddTasks() {
                 switch (this.type) {
                     case TASKS_TYPE.main:
-                    case TASKS_TYPE.subTasks:
+                    case TASKS_TYPE.subtasks:
                         return true;
                     default: return false;
                 }
@@ -74,11 +75,11 @@
                 return TASKS_TYPE.main;
             },
             taskListTypeSub() {
-                return TASKS_TYPE.subTasks;
+                return TASKS_TYPE.subtasks;
             },
         },
         methods: {
-            addTask: function() {
+            addTask() {
                this.taskNameError = "";
                this.validateTaskName(this.newTaskName, () => {
                    let task = _.cloneDeep(TASKS_TEMPLATE);
@@ -89,16 +90,19 @@
                    TASKS_EVENT.taskAdded(this, task);
                })
             },
-            changeStatus: function(index, action) {
+            changeStatus(index, action) {
                 TASKS_EVENT.taskStatusChanged(this, index, action);
             },
-            changeName: function(index, action) {
+            changeName(index, action) {
                 this.$emit('taskNameChanged', {index, 'name':action})
             },
-            toggleExpanded: function() {
+            deletedTask(index, $event) {
+                this.$emit('taskDeleted', {index, 'id':$event.id})
+            },
+            toggleExpanded() {
                 TASKS_EVENT.taskToggleExpanded(this);
             },
-            validateTaskName: function(name, callback) {
+            validateTaskName(name, callback) {
                 let that = this;
                 this.tasks.forEach(function(task){
                     if (task.name === name) {

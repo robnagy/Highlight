@@ -22,12 +22,12 @@ export default {
             let placeholders = { "__id__" : data.id };
             NetworkClient.request(api.v1.patch.task, data, placeholders, null, onSuccess, onFailure);
         },
-        postTaskSuccess(data, index, url) {
-            this.$set(this.tasks, index, data);
+        postTaskSuccess(response, index, url) {
+            this.$set(this.tasks, index, response.data);
         },
-        postTaskFailure(error, index, url) {
+        postTaskFailure(response, index, url) {
             console.log("POST task failed for index "+index+" for url "+url);
-            console.log(error);
+            console.log(response);
         },
         postTaskTrigger() {
             this.postTask(this.tasks[this.selectedTaskIndex], this.selectedTaskIndex);

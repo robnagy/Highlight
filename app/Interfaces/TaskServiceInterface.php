@@ -2,30 +2,24 @@
 
 namespace App\Interfaces;
 
-use App\Http\Requests\TaskRequest;
-use App\Models\Task;
-use Illuminate\Database\Eloquent\Collection;
-Use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 interface TaskServiceInterface extends EloquentServiceInterface
 {
     /**
-     * Creates a new Task using mass fillable
-     * values from validated TaskRequest.
+     * Checks if given task exists for the given user.
      *
-     * @param TaskRequest $request
-     * @return Task
+     * @param int $user_id
+     * @param int $task_id
+     * @return boolean
      */
-    public function createFromRequest(TaskRequest $request) : Task;
+    public function verifyUserTask(int $user_id, int $task_id) : bool;
 
     /**
-     * Updates a Task using mass fillable
-     * values from validated TaskRequest
+     * Deletes Task with given task_id. Also
+     * deletes subtasks linked the task.
      *
-     * @param Task $task
-     * @param TaskRequest $request
-     * @return Task
+     * @param integer $task_id
+     * @return boolean
      */
-    public function updateFromRequest(Task $task, TaskRequest $request) : Task;
+    public function deleteTask(int $task_id) : bool;
 }

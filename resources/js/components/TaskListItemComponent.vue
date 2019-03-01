@@ -19,23 +19,23 @@
                     :class="taskClass"
                     title="Expand task"
                     @click.stop="markExpanded">
-                <i class="far fa-angle-double-right"></i>
+                <i class="fas fa-angle-double-right"></i>
             </a>
             <a
                     v-if="showContract"
                     class="btn float-right"
                     :class="taskClass"
-                    title="Expand task"
+                    title="Collapse task"
                     @click.stop="markExpanded">
-                <i class="far fa-angle-double-left"></i>
+                <i class="fas fa-angle-double-left"></i>
             </a>
             <a
                     v-if="showDelete"
                     class="btn float-right"
                     :class="taskClass"
                     title="Delete task"
-                    @click.stop="markDeleted">
-                <i class="far fa-trash"></i>
+                    @click.stop="deleted">
+                <i class="fas fa-trash"></i>
             </a>
             <a
                     v-if="showMarkComplete"
@@ -43,7 +43,7 @@
                     :class="taskClass"
                     title="Mark as complete"
                     @click.stop="markComplete">
-                <i class="far fa-check"></i>
+                <i class="fas fa-check"></i>
             </a>
             <a
                     v-if="showEdit"
@@ -85,7 +85,7 @@
 <script>
     import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE} from '../config/tasks';
     export default {
-        props: ['name', 'status', 'type', 'expanded', 'subTasks'],
+        props: ['name', 'status', 'type', 'expanded', 'subtasks', 'id'],
         data() {
             return {
                 localName: "",
@@ -175,11 +175,11 @@
             }
         },
         methods: {
+            deleted() {
+                this.$emit('taskDeleted', {'id':this.id});
+            },
             markComplete() {
                 this.statusChanged(TASK_STATUS.completed);
-            },
-            markDeleted() {
-                this.statusChanged(TASK_STATUS.deleted);
             },
             markNew() {
                 this.statusChanged(TASK_STATUS.new);

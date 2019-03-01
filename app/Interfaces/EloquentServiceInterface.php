@@ -3,7 +3,8 @@
 namespace App\Interfaces;
 
 use Illuminate\Database\Eloquent\Collection;
-Use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Http\FormRequest;
 
 interface EloquentServiceInterface
 {
@@ -23,6 +24,26 @@ interface EloquentServiceInterface
      * @return Model
      */
     public function create(array $modelAttributes) : Model;
+
+    /**
+     * Creates a new Model using mass fillable
+     * values from validated Request.
+     *
+     * @param FormRequest $request
+     * @return Model
+     */
+    public function createFromRequest(FormRequest $request) : Model;
+
+
+    /**
+     * Updates a Model using mass fillable
+     * values from validated Request
+     *
+     * @param Model $model
+     * @param FormRequest $request
+     * @return Model
+     */
+    public function updateFromRequest(Model $model, FormRequest $request) : Model;
 
     /**
      * Creates new instance of Model, using values passed in via array.
@@ -73,4 +94,13 @@ interface EloquentServiceInterface
      * @return void
      */
     public function allForUserWith(int $user_id, array $with) : Collection;
+
+    /**
+     * Returns all instances of model where a $column matches a $value
+     *
+     * @param string $column
+     * @param integer $value
+     * @return Collection
+     */
+    public function where(string $column, int $value) : Collection;
 }
