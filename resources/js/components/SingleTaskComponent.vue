@@ -32,7 +32,7 @@
                 ></task-list>
             </div>
 
-            <tags-component :taskTags="tags" @tagsUpdated="updateHandler($event, 'tags')"></tags-component>
+            <tags-component :taskid="id" @tagsUpdated="updateHandler($event, 'tags')"></tags-component>
 
         </div>
     </div>

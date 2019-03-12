@@ -36,14 +36,14 @@ interface EloquentServiceInterface
 
 
     /**
-     * Updates a Model using mass fillable
+     * Updates a resource using mass fillable
      * values from validated Request
      *
-     * @param Model $model
+     * @param int $resource_id
      * @param FormRequest $request
-     * @return Model
+     * @return array
      */
-    public function updateFromRequest(Model $model, FormRequest $request) : Model;
+    public function updateFromRequest(int $resource_id, FormRequest $request) : array;
 
     /**
      * Creates new instance of Model, using values passed in via array.
@@ -99,8 +99,40 @@ interface EloquentServiceInterface
      * Returns all instances of model where a $column matches a $value
      *
      * @param string $column
-     * @param integer $value
+     * @param mixed $value
      * @return Collection
      */
-    public function where(string $column, int $value) : Collection;
+    public function where(string $column, $value) : Collection;
+
+    /**
+     * Returns columns for query built with $values associative array.
+     * e.g. Columns ['id']
+     * e.g. Values ['name' => 'bob']
+     * Returns the 'id' of the resource where 'name' is equal to 'bob'
+     *
+     * @param array $columns
+     * @param array $values
+     * @return Collection
+     */
+    public function selectWhere(array $columns, array $values) : Collection;
+
+    /**
+     * Returns the first value of column pluck
+     * for resource matching where conditions.
+     *
+     * @param string $pluck
+     * @param array $where
+     * @return mixed
+     */
+    public function pluckFirstWhere(string $pluck, array $where);
+
+    /**
+     * Deletes resources for the given IDs.
+     * [1,4,5]
+     * No failure if resource not found.
+     *
+     * @param array $ids
+     * @return void
+     */
+    public function bulkDelete(array $ids);
 }

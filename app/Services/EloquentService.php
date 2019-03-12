@@ -3,11 +3,9 @@
 namespace App\Services;
 
 use App\Interfaces\EloquentServiceInterface;
-use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 
 class EloquentService implements EloquentServiceInterface
 {
@@ -44,10 +42,13 @@ class EloquentService implements EloquentServiceInterface
         return $this->create($itemArray);
     }
 
-    public function updateFromRequest(Model $model, FormRequest $request) : Model
+    public function updateFromRequest(int $resource_id, FormRequest $request) : array
     {
+        $model = $this->model->find($resource_id);
         $itemArray = $request->only($this->model->getFillable());
-        return $this->update($model, $itemArray);
+        $model->update($itemArray);
+        $model->save();
+        return $model->toArray();
     }
 
     public function new(array $modelAttributes) : Model {
@@ -79,9 +80,23 @@ class EloquentService implements EloquentServiceInterface
         return $this->model->with($with)->where('user_id', $user_id)->get();
     }
 
-    public function where(string $column, int $value) : Collection
+    public function where(string $column, $value) : Collection
     {
         return $this->model->where($column, $value)->get();
     }
 
+    public function selectWhere(array $columns, array $values) : Collection
+    {
+        return $this->model->where($values)->select($columns)->get();
+    }
+
+    public function pluckFirstWhere(string $pluck, array $where)
+    {
+        return $this->model->where($where)->pluck($pluck)->first();
+    }
+
+    public function bulkDelete(array $ids)
+    {
+        return $this->model->destroy($ids);
+    }
 }

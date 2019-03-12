@@ -58,7 +58,8 @@ class TagController extends Controller
      */
     public function store(TagRequest $request)
     {
-        return $this->tagService->createFromRequest($request);
+        $response = ['data' => $this->tagService->createFromRequest($request)];
+        return $response;
     }
 
     /**

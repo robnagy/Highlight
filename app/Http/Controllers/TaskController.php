@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TaskRequest;
 use App\Interfaces\TaskServiceInterface;
 use App\Models\Task;
+use App\Models\User;
 use App\Services\UserService;
 use App\Traits\RouteUserIdTrait;
 use Illuminate\Http\Request;
@@ -34,14 +35,15 @@ class TaskController extends Controller
      */
     public function indexForUser($user_id)
     {
-        $user_id = $this->checkUserId($user_id);
+        $this->authorize('view', [User::class, $user_id]);
         $response = [ 'data' => $this->taskService->allForUserWith($user_id, ['tags']) ];
         return $response;
     }
 
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created task in storage.
+     * Authorization occurs in the TaskRequest.
      *
      * @param  \App\Http\Requests\TaskRequest  $request
      * @return \Illuminate\Http\Response
@@ -53,17 +55,17 @@ class TaskController extends Controller
     }
 
     /**
-     * Updates the Task model. Model is resolved using route model
-     * binding that links the {task} url segment to a task id.
+     * Stores updates for a task.
+     * Authorization occurs in the TaskRequest.
      *
      * @param TaskRequest $request
-     * @param mixed $user_id
+     * @param int $user_id
      * @param Task $task
      * @return \Illuminate\Http\Response
      */
-    public function update(TaskRequest $request, $user_id, Task $task)
+    public function update(TaskRequest $request, int $user_id, int $task_id)
     {
-        $response = [ 'data' => $this->taskService->updateFromRequest($task, $request) ];
+        $response = [ 'data' => $this->taskService->updateFromRequest($task_id, $request) ];
         return $response;
     }
 
@@ -76,6 +78,8 @@ class TaskController extends Controller
      */
     public function delete($user_id, $task_id)
     {
+        $this->authorize('delete', [Task::class, $user_id, $task_id]);
+
         $response = (string) $this->taskService->deleteTask( (int) $task_id);
         $response = [ 'meta' => [ 'message' => 'Task deleted: ' . $response ] ];
         return $response;

@@ -2,11 +2,8 @@
 
 namespace App\Services;
 
-use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
 use App\Models\Tag;
-Use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class TagService extends EloquentService implements TagServiceInterface
 {
@@ -15,4 +12,8 @@ class TagService extends EloquentService implements TagServiceInterface
         parent::__construct($tag);
     }
 
+    public function getTagUserId(int $tag_id) : ?int
+    {
+        return $this->pluckFirstWhere('user_id', ['id' => $tag_id]);
+    }
 }

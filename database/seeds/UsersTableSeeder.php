@@ -12,9 +12,10 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         $user = new User([
-            'name' => 'Robert Nagy',
-            'email' => 'robert.nagy83@gmail.com',
+            'name' => 'Guest',
+            'email' => 'guest@example.com',
             'password' => Crypt::encrypt('password'),
         ]);
+        $user->save();
     }
 }

@@ -16,12 +16,14 @@
 
 <script>
     import VueTagsInput from '@johmun/vue-tags-input';
+    import saveTagsMixin from '../mixins/saveTagsMixin';
     import NetworkClient from '../utils/network_client.js';
     import api from '../config/api.js';
-import { timeout } from 'q';
+
     export default {
         components: { VueTagsInput },
-        props: [ 'taskTags' ],
+        props: [ "taskid" ],
+        mixins: [ saveTagsMixin ],
         data() {
             return {
                 'activeTags' : [],
@@ -30,12 +32,23 @@ import { timeout } from 'q';
             }
         },
         mounted() {
-            this.activeTags = _.cloneDeep(this.taskTags || []);
+            // this.activeTags = _.cloneDeep(this.taskTags || []);
             this.fetchUserTags();
+            this.fetchTaskTags();
         },
         methods: {
+            fetchTaskTags() {
+                let placeholders = { "__taskid__" : this.taskid };
+                NetworkClient.request(api.v1.get.tagTask, null, placeholders, null, this.fetchTaskTagsSuccess, this.fetchTaskTagsError);
+            },
+            fetchTaskTagsSuccess(response, url) {
+                this.activeTags = response.data;
+            },
+            fetchTaskTagsError(response, url) {
+                console.log('Fetch task tags error for url '+url);
+                console.log(response);
+            },
             fetchUserTags() {
-                this.errorState = false;
                 NetworkClient.request(api.v1.get.tags, null, null, null, this.fetchUserTagsSuccess, this.fetchUserTagsError);
             },
             fetchUserTagsSuccess(data, url) {
@@ -44,13 +57,36 @@ import { timeout } from 'q';
             fetchUserTagsError(e, url) {
                 this.errorState = true;
             },
+            linkTagTask(tag_id) {
+                let placeholders = {"__taskid__" : this.taskid, "__tagid__" : tag_id};
+                NetworkClient.request(api.v1.get.tagTaskLink, null, placeholders, null, this.linkTagTaskSuccess, this.linkTagTaskError)
+            },
+            linkTagTaskSuccess(response, url) {
+                // console.log("Link tag task success for "+url);
+            },
+            linkTagTaskError(response, url) {
+                console.log("Link tag task error for "+url);
+                console.log(response);
+            },
             onTagAdded($event) {
                 if (!$event.tag.tiClasses.includes("ti-duplicate")) {
+                    // if tag is manually typed in, and already exists, replace with actual tag
+                    this.allTags.forEach((tag) => {
+                        if (tag.text == $event.tag.text)
+                            $event.tag = tag;
+                    })
                     let newActiveTags = _.cloneDeep(this.activeTags);
                     newActiveTags.push(_.cloneDeep($event.tag));
                     this.activeTags = newActiveTags;
-                    if (!$event.tag.hasOwnProperty("id"))
-                        this.saveTagOnline($event.tag)
+                    if ($event.tag.hasOwnProperty("id")) {
+                        this.linkTagTask($event.tag.id);
+                    } else {
+                        // link new tag to task
+                        let callback = (result) => {
+                            this.linkTagTask(result.data.id);
+                        }
+                        this.saveTagOnline($event.tag, callback);
+                    }
                 } else {
                     console.log('duplicate tag not added');
                 }
@@ -66,40 +102,29 @@ import { timeout } from 'q';
                     }
                 });
                 this.activeTags.splice(remove, 1);
+                this.unlinkTagTask($event.tag.id);
             },
-            saveTagOnline(tag) {
-                // save tag online, link to task
-                NetworkClient.request(api.v1.post.tag, tag, null, null, this.saveTagSuccess, this.fetchUserTagsError);
+
+            unlinkTagTask(tag_id) {
+                let placeholders = {"__taskid__" : this.taskid, "__tagid__" : tag_id};
+                NetworkClient.request(api.v1.get.tagTaskUnlink, null, placeholders, null, this.unlinkTagTaskSuccess, this.unlinkTagTaskError)
             },
-            saveTagSuccess(data) {
-                // add new tag to task tags
-                this.activeTags.forEach(tag => {
-                    if (tag.text === data.text) {
-                        Object.assign(tag, data);
-                    }
-                });
+            unlinkTagTaskSuccess(response, url) {
+                // console.log("unlink tag task success for "+url);
             },
-            saveTagError(e) {
-                console.log(e);
+            unlinkTagTaskError(response, url) {
+                console.log("unlink tag task error for "+url);
+                console.log(response);
             },
             userTagsReceived($event) {
                 this.allTags = $event;
             },
-            exportTags() {
-                let newTags = _.cloneDeep(this.activeTags);
-                this.$emit('tagsUpdated', newTags);
-            }
         },
         watch:{
-            activeTags() {
-                if (!_.isEqual(this.activeTags, this.taskTags)) {
-                    this.exportTags();
-                }
-            },
-            taskTags() {
-                if (!_.isEqual(this.activeTags, this.taskTags)) {
-                    this.activeTags = _.cloneDeep(this.taskTags);
-                }
+            taskid() {
+                console.log('tags id changed');
+                this.activeTags = [];
+                this.fetchTaskTags();
             }
         }
     }

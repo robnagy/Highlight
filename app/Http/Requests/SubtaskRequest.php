@@ -2,14 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Traits\RequestAuthorizeTrait;
+use App\Models\Subtask;
 use App\Traits\RouteTaskIdTrait;
 use App\Traits\RouteUserIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SubtaskRequest extends FormRequest
 {
-    use RequestAuthorizeTrait;
     use RouteTaskIdTrait;
     use RouteUserIdTrait;
 
@@ -20,12 +19,15 @@ class SubtaskRequest extends FormRequest
      */
     public function authorize()
     {
-        if ($this->authorizeUserId() &&
-            $this->authorizeUserIdTaskId($this->translateRouteUserId(),$this->task_id)) {
-                return true;
-            }
+        $user_id = $this->route('user_id');
+        $task_id = $this->route('task_id');
 
-        return false;
+        if ($subtask_id = $this->input('id'))
+        {
+            return $this->user()->can('update', [Subtask::class, $task_id, $subtask_id]);
+        }
+
+        return $this->user()->can('create', [Subtask::class, $user_id, $task_id]);
     }
 
     /**

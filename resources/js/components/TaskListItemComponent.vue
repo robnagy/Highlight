@@ -7,7 +7,7 @@
         @mouseleave="hover = false"
         >
         <div class="col-md-5" v-if="!editMode">
-            <span class="float-left m-1 p-1" :class="taskClass">{{ localName }}</span>
+            <span class="float-left text-left m-1 p-1" :class="taskClass">{{ localName }}</span>
         </div>
         <div class="col-md-5" v-if="editMode" @click.stop="">
             <span class="float-left" :class="taskClass"><input type="text" v-model="localName" ></span>

@@ -14,5 +14,9 @@ class UserService extends EloquentService implements UserServiceInterface
         parent::__construct($user);
     }
 
-
+    public function loginGuestUser()
+    {
+        $guest = $this->where('name', 'Guest')->first();
+        if ($guest) Auth::login($guest, true);
+    }
 }

@@ -11,6 +11,18 @@ export default {
                 url: `${baseUrl}/user/__userid__/tags`,
                 method: 'GET'
             },
+            tagTask: {
+                url: `${baseUrl}/user/__userid__/task/__taskid__/tags`,
+                method: 'GET'
+            },
+            tagTaskLink: {
+                url: `${baseUrl}/user/__userid__/task/__taskid__/tag/__tagid__/link`,
+                method: 'GET'
+            },
+            tagTaskUnlink: {
+                url: `${baseUrl}/user/__userid__/task/__taskid__/tag/__tagid__/unlink`,
+                method: 'GET'
+            },
             tasks: {
                 url: `${baseUrl}/user/__userid__/tasks`,
                 method: 'GET'
@@ -32,7 +44,7 @@ export default {
                 method: 'POST'
             },
             tag: {
-                url: `${baseUrl}/user/__userid__/task`,
+                url: `${baseUrl}/user/__userid__/tag`,
                 method: 'POST'
             },
             task: {

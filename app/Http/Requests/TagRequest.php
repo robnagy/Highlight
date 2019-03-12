@@ -2,19 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
-use App\Services\UserService;
-use App\Traits\RequestAuthorizeTrait;
 use App\Traits\RouteUserIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Route;
 
 class TagRequest extends FormRequest
 {
-    use RequestAuthorizeTrait;
     use RouteUserIdTrait;
 
     /**
@@ -24,10 +17,14 @@ class TagRequest extends FormRequest
      */
     public function authorize()
     {
-        if ($this->authorizeUserId())
-            return true;
+        $user_id = $this->route('user_id');
 
-        return false;
+        if ($tag_id = $this->input('id'))
+        {
+            return $this->user()->can('update', [Tag::class, $user_id, $tag_id]);
+        }
+
+        return $this->user()->can('create', [Tag::class, $user_id]);
     }
 
     /**
@@ -47,8 +44,35 @@ class TagRequest extends FormRequest
                         ->where('user_id', $this->user_id);
                 }),
             ],
-            'user_id' => 'exists:users,id',
+            'user_id' => 'required|exists:users,id',
         ];
     }
 
+
+    /**
+     * Adjusts the request data object provided for validation.
+     * Allows for injecting or modifying of values,
+     * e.g. to insert route parameters.
+     *
+     * @param array $keys
+     * @return array
+     */
+    public function all($keys = null)
+    {
+        $data = parent::all($keys);
+        $data['user_id'] = $this->translateRouteUserId();
+        return $data;
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'text.unique' => 'Tag already exists',
+        ];
+    }
 }

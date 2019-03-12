@@ -27,10 +27,9 @@ class RouteServiceProvider extends ServiceProvider
 
         parent::boot();
 
-        // Bind the {task} URL segment used in routes
-        // files to Task model matching that id.
-        Route::model('task', \App\Models\Task::class);
-        Route::model('subtask', \App\Models\Subtask::class);
+        // Bind the {user} URL segment used in routes to the
+        // User model matching that id, for policy support.
+        Route::model('user', \App\Models\User::class);
     }
 
     /**

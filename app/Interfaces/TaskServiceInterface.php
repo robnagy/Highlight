@@ -22,4 +22,13 @@ interface TaskServiceInterface extends EloquentServiceInterface
      * @return boolean
      */
     public function deleteTask(int $task_id) : bool;
+
+    /**
+     * Returns the user_id for provided task_id.
+     * Returns null if task_id not found.
+     *
+     * @param integer $task_id
+     * @return integer
+     */
+    public function getTaskUserId(int $task_id) : ?int;
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\UserServiceInterface;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -20,6 +22,8 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
+    protected $userService;
+
     /**
      * Where to redirect users after login.
      *
@@ -32,8 +36,20 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserServiceInterface $userServiceInterface)
     {
         $this->middleware('guest')->except('logout');
+        $this->userService = $userServiceInterface;
+    }
+
+    /**
+     * Sets the seeded Guest account as the currently logged in user.
+     *
+     * @return void
+     */
+    public function guestLogin()
+    {
+        $this->userService->loginGuestUser();
+        return redirect('/home');
     }
 }

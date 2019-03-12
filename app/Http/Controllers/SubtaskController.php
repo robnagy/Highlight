@@ -26,6 +26,7 @@ class SubtaskController extends Controller
      */
     public function indexForTask($user_id, $task_id)
     {
+        $this->authorize('view', [Subtask::class, $user_id, $task_id]);
         return $this->subtaskService->where('task_id', $task_id);
     }
 
@@ -39,6 +40,7 @@ class SubtaskController extends Controller
      */
     public function store($user_id, $task_id, SubtaskRequest $request)
     {
+        $this->authorize('create', [Subtask::class, $user_id, $task_id]);
         $response = [ 'data' => $this->subtaskService->createFromRequest($request) ];
         return $response;
     }
@@ -52,9 +54,9 @@ class SubtaskController extends Controller
      * @param  \App\Subtask  $subtask
      * @return \Illuminate\Http\Response
      */
-    public function update(SubtaskRequest $request, $user_id, $task_id, Subtask $subtask)
+    public function update(SubtaskRequest $request, $user_id, $task_id, int $subtask_id)
     {
-        $response = [ 'data' => $this->subtaskService->updateFromRequest($subtask, $request) ];
+        $response = [ 'data' => $this->subtaskService->updateFromRequest($subtask_id, $request) ];
         return $response;
     }
 
@@ -68,7 +70,7 @@ class SubtaskController extends Controller
      */
     public function delete($user_id, $task_id, $subtask_id)
     {
-        $response = $this->subtaskService->delete($subtask_id);
+        $response = $this->subtaskService->deleteSubtask($subtask_id);
         $response = [ 'meta' => [ 'message' => 'Subtask deleted: ' . (string) $response ] ];
         return $response;
     }

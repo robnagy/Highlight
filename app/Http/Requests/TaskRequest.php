@@ -2,14 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Services\UserService;
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class TaskRequest extends FormRequest
 {
-    use \App\Traits\RequestAuthorizeTrait;
     use \App\Traits\RouteTaskIdTrait;
     use \App\Traits\RouteUserIdTrait;
 
@@ -20,12 +17,14 @@ class TaskRequest extends FormRequest
      */
     public function authorize()
     {
-        if ($this->authorizeUserId() &&
-            $this->authorizeUserIdTaskId($this->translateRouteUserId(), $this->getTaskIdFromRoute())
-            )
-            return true;
+        $user_id = $this->route('user_id');
 
-        return false;
+        if ($task_id = $this->input('id'))
+        {
+            return $this->user()->can('update', [Task::class, $user_id, $task_id]);
+        }
+
+        return $this->user()->can('create', [Task::class, $user_id]);
     }
 
     /**
