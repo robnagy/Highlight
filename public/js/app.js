@@ -2683,7 +2683,10 @@ __webpack_require__.r(__webpack_exports__);
       var _this3 = this;
 
       var isExpanded = this.taskExpanded;
-      this.showTasks = false;
+
+      if (this.layout === "horizontal") {
+        this.showTasks = false;
+      }
 
       if (isExpanded) {
         this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;

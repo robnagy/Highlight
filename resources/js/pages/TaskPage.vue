@@ -142,7 +142,9 @@
             },
             taskToggleExpanded() {
                 const isExpanded = this.taskExpanded;
-                this.showTasks = false;
+                if (this.layout === "horizontal") {
+                    this.showTasks = false;
+                }
                 if (isExpanded) {
                     this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
                 }
