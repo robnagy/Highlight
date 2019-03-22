@@ -10,7 +10,14 @@
             <span class="float-left text-left m-1 p-1" :class="taskClass">{{ localName }}</span>
         </div>
         <div class="col-md-5" v-if="editMode" @click.stop="">
-            <span class="float-left" :class="taskClass"><input type="text" v-model="localName" ></span>
+            <span class="float-left" :class="taskClass">
+                <b-form-input
+                    :id="editId"
+                    type="text"
+                    v-model="localName"
+                    @change="saveName">
+                </b-form-input>
+            </span>
         </div>
         <div class="col-md-7" v-if="hover">
             <a
@@ -88,6 +95,7 @@
         props: ['name', 'status', 'type', 'expanded', 'subtasks', 'id'],
         data() {
             return {
+                editing: false,
                 localName: "",
                 hover: false,
             }
@@ -96,15 +104,14 @@
             this.localName = this.name;
         },
         computed: {
+            editId() {
+                return "task_name_edit_"+this.id;
+            },
             editMode() {
-                switch (this.status) {
-                    case TASK_STATUS.editing:
-                        return true;
-                    default:
-                        return false;
-                }
+                return this.editing;
             },
             showDelete() {
+                if (this.editMode) return false;
                 switch (this.status) {
                     case TASK_STATUS.editing:
                         return false;
@@ -113,6 +120,7 @@
                 }
             },
             showEdit() {
+                if (this.editMode) return false;
                 switch (this.status) {
                     case TASK_STATUS.selected:
                         return true;
@@ -121,22 +129,15 @@
                 }
             },
             showEditCancel() {
-                switch (this.status) {
-                    case TASK_STATUS.editing:
-                        return true;
-                    default:
-                        return false;
-                }
+                if (this.editMode) return true;
+                return false;
             },
             showEditSave() {
-                switch (this.status) {
-                    case TASK_STATUS.editing:
-                        return true;
-                    default:
-                        return false;
-                }
+                if (this.editMode) return true;
+                return false;
             },
             showExpand() {
+                if (this.editMode) return false;
                 switch (this.status) {
                     case TASK_STATUS.selected:
                         if (this.type == TASKS_TYPE.main) {
@@ -147,6 +148,7 @@
                 }
             },
             showContract() {
+                if (this.editMode) return false;
                 switch (this.status) {
                     case TASK_STATUS.selected:
                         return this.expanded == true;
@@ -155,6 +157,7 @@
                 }
             },
             showMarkComplete() {
+                if (this.editMode) return false;
                 switch (this.status) {
                     case TASK_STATUS.selected:
                         return true;
@@ -163,6 +166,7 @@
                 }
             },
             showReopenTask() {
+                if (this.editMode) return false;
                 switch (this.status) {
                     case TASK_STATUS.completed:
                         return true;
@@ -185,7 +189,8 @@
                 this.statusChanged(TASK_STATUS.new);
             },
             markEditing() {
-                this.statusChanged(TASK_STATUS.editing);
+                this.editing = true;
+                // this.statusChanged(TASK_STATUS.editing);
             },
             markExpanded() {
                 TASKS_EVENT.taskToggleExpanded(this);
@@ -194,8 +199,8 @@
                 this.statusChanged(TASK_STATUS.selected);
             },
             saveName() {
+                this.editing = false;
                 this.$emit('taskNameChanged', this.localName);
-                this.statusChanged(TASK_STATUS.selected);
             },
             statusChanged(status) {
                 this.$emit('taskStatusChanged', status);
@@ -204,6 +209,14 @@
         watch: {
             name(newValue) {
                 this.localName = newValue;
+            },
+            status(newValue) {
+                if (newValue == TASK_STATUS.editing) {
+                    this.$nextTick(() => {
+                        let el = document.getElementById(this.editId);
+                        el.focus();
+                    })
+                }
             }
         }
     }

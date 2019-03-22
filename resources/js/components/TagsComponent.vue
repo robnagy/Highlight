@@ -32,7 +32,6 @@
             }
         },
         mounted() {
-            // this.activeTags = _.cloneDeep(this.taskTags || []);
             this.fetchUserTags();
             this.fetchTaskTags();
         },

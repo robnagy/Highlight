@@ -12,7 +12,11 @@ window.Vue = require('vue');
 // Import BootstrapVue UI library
 import BootstrapVue from 'bootstrap-vue'
 import EventBus from './events/event-bus.js'
+import VueCookies from 'vue-cookies'
 
+VueCookies.config('7d');
+
+Vue.use(VueCookies);
 Vue.use(BootstrapVue);
 
 Object.defineProperties(Vue.prototype, {

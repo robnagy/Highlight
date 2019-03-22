@@ -1809,19 +1809,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -1856,6 +1843,10 @@ __webpack_require__.r(__webpack_exports__);
     },
     getNewTask: function getNewTask() {
       return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subtasks, this.tags, this.id);
+    },
+    changeSubtaskName: function changeSubtaskName($event) {
+      this.$set(this.subtasks[$event.index], 'name', $event.name);
+      this.postSubtask(this.subtasks[$event.index], $event.index);
     },
     changeSubtaskStatus: function changeSubtaskStatus($event) {
       var _this = this;
@@ -1958,7 +1949,6 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
-    // this.activeTags = _.cloneDeep(this.taskTags || []);
     this.fetchUserTags();
     this.fetchTaskTags();
   },
@@ -2370,11 +2360,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['name', 'status', 'type', 'expanded', 'subtasks', 'id'],
   data: function data() {
     return {
+      editing: false,
       localName: "",
       hover: false
     };
@@ -2383,16 +2381,15 @@ __webpack_require__.r(__webpack_exports__);
     this.localName = this.name;
   },
   computed: {
+    editId: function editId() {
+      return "task_name_edit_" + this.id;
+    },
     editMode: function editMode() {
-      switch (this.status) {
-        case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing:
-          return true;
-
-        default:
-          return false;
-      }
+      return this.editing;
     },
     showDelete: function showDelete() {
+      if (this.editMode) return false;
+
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing:
           return false;
@@ -2402,6 +2399,8 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     showEdit: function showEdit() {
+      if (this.editMode) return false;
+
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected:
           return true;
@@ -2411,24 +2410,16 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     showEditCancel: function showEditCancel() {
-      switch (this.status) {
-        case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing:
-          return true;
-
-        default:
-          return false;
-      }
+      if (this.editMode) return true;
+      return false;
     },
     showEditSave: function showEditSave() {
-      switch (this.status) {
-        case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing:
-          return true;
-
-        default:
-          return false;
-      }
+      if (this.editMode) return true;
+      return false;
     },
     showExpand: function showExpand() {
+      if (this.editMode) return false;
+
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected:
           if (this.type == _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].main) {
@@ -2440,6 +2431,8 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     showContract: function showContract() {
+      if (this.editMode) return false;
+
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected:
           return this.expanded == true;
@@ -2449,6 +2442,8 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     showMarkComplete: function showMarkComplete() {
+      if (this.editMode) return false;
+
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected:
           return true;
@@ -2458,6 +2453,8 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     showReopenTask: function showReopenTask() {
+      if (this.editMode) return false;
+
       switch (this.status) {
         case _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].completed:
           return true;
@@ -2483,7 +2480,7 @@ __webpack_require__.r(__webpack_exports__);
       this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new);
     },
     markEditing: function markEditing() {
-      this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing);
+      this.editing = true; // this.statusChanged(TASK_STATUS.editing);
     },
     markExpanded: function markExpanded() {
       _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskToggleExpanded(this);
@@ -2492,8 +2489,8 @@ __webpack_require__.r(__webpack_exports__);
       this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected);
     },
     saveName: function saveName() {
+      this.editing = false;
       this.$emit('taskNameChanged', this.localName);
-      this.statusChanged(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected);
     },
     statusChanged: function statusChanged(status) {
       this.$emit('taskStatusChanged', status);
@@ -2502,6 +2499,16 @@ __webpack_require__.r(__webpack_exports__);
   watch: {
     name: function name(newValue) {
       this.localName = newValue;
+    },
+    status: function status(newValue) {
+      var _this = this;
+
+      if (newValue == _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].editing) {
+        this.$nextTick(function () {
+          var el = document.getElementById(_this.editId);
+          el.focus();
+        });
+      }
     }
   }
 });
@@ -2525,7 +2532,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mixins/loadTasksMixin */ "./resources/js/mixins/loadTasksMixin.js");
 /* harmony import */ var _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../mixins/saveTaskMixin */ "./resources/js/mixins/saveTaskMixin.js");
 /* harmony import */ var _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../mixins/selectTaskMixin */ "./resources/js/mixins/selectTaskMixin.js");
-//
 //
 //
 //
@@ -2585,6 +2591,10 @@ __webpack_require__.r(__webpack_exports__);
     TaskList: _components_TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   mixins: [_mixins_deleteTaskMixin__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_loadTasksMixin__WEBPACK_IMPORTED_MODULE_5__["default"], _mixins_saveTaskMixin__WEBPACK_IMPORTED_MODULE_6__["default"], _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_7__["default"]],
+  created: function created() {
+    var layout = this.$cookies.get('tasks_layout');
+    if (layout !== null) this.layout = layout;
+  },
   mounted: function mounted() {
     if (this.firstLaunch === true) {
       this.showTasks = true;
@@ -2675,6 +2685,8 @@ __webpack_require__.r(__webpack_exports__);
 
       this.showTasks = false;
       setTimeout(function () {
+        _this2.$cookies.set('tasks_layout', event.layout);
+
         _this2.layout = event.layout;
         _this2.showTasks = true;
       }, 300);
@@ -2690,22 +2702,15 @@ __webpack_require__.r(__webpack_exports__);
 
       if (isExpanded) {
         this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
+        setTimeout(function () {
+          _this3.showTasks = true;
+        }, 300);
+        this.postTaskTrigger();
+      } else {
+        this.showTasks = true;
+        this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
+        this.postTaskTrigger();
       }
-
-      setTimeout(function () {
-        if (!isExpanded) {
-          _this3.tasks[_this3.selectedTaskIndex].expanded = !_this3.tasks[_this3.selectedTaskIndex].expanded;
-        }
-
-        _this3.showTasks = true;
-      }, 300);
-      this.postTaskTrigger();
-    },
-    updateTask: function updateTask(data) {
-      this.selectedTask = data;
-    },
-    updateTasks: function updateTasks(data) {
-      this.tasks = data;
     },
     updateSelectedTaskIndex: function updateSelectedTaskIndex() {
       var _this4 = this;
@@ -41146,6 +41151,131 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-cookies/vue-cookies.js":
+/*!*************************************************!*\
+  !*** ./node_modules/vue-cookies/vue-cookies.js ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+    /**
+ * Vue Cookies v1.5.12
+ * https://github.com/cmp-cc/vue-cookies
+ *
+ * Copyright 2016, cmp-cc
+ * Released under the MIT license
+ */
+
+(function() {
+
+    var defaultConfig = {
+        expires : '1d',
+        path : '; path=/'
+    }
+
+    var VueCookies = {
+        // install of Vue
+        install: function(Vue) {
+            Vue.prototype.$cookies = this
+            Vue.cookies = this
+        },
+        config : function(expireTimes,path) {
+            if(expireTimes) {
+                defaultConfig.expires = expireTimes;
+            }
+            if(path) {
+                defaultConfig.path = '; path=' + path;
+            }
+        },
+        get: function(key) {
+            var value = decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null
+
+            if(value && value.substring(0,1) === "{" && value.substring(value.length-1,value.length) === "}") {
+                try {
+                    value = JSON.parse(value)
+                }catch (e) {
+                    return value;
+                }
+            }
+            return value;
+        },
+        set: function(key, value, expireTimes, path, domain, secure) {
+            if (!key) {
+                throw new Error("cookie name is not find in first argument")
+            }else if(/^(?:expires|max\-age|path|domain|secure)$/i.test(key)){
+                throw new Error("cookie key name illegality ,Cannot be set to ['expires','max-age','path','domain','secure']\t","current key name: "+key);
+            }
+            // support json object
+            if(value && value.constructor === Object ) {
+                value = JSON.stringify(value);
+            }
+            var _expires = "; max-age=86400"; // temp value, default expire time for 1 day
+            expireTimes = expireTimes || defaultConfig.expires;
+            if (expireTimes) {
+                switch (expireTimes.constructor) {
+                    case Number:
+                        if(expireTimes === Infinity || expireTimes === -1) _expires = "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+                        else _expires = "; max-age=" + expireTimes;
+                        break;
+                    case String:
+                        if (/^(?:\d{1,}(y|m|d|h|min|s))$/i.test(expireTimes)) {
+                            // get capture number group
+                            var _expireTime = expireTimes.replace(/^(\d{1,})(?:y|m|d|h|min|s)$/i, "$1");
+                            // get capture type group , to lower case
+                            switch (expireTimes.replace(/^(?:\d{1,})(y|m|d|h|min|s)$/i, "$1").toLowerCase()) {
+                                // Frequency sorting
+                                case 'm':  _expires = "; max-age=" + +_expireTime * 2592000; break; // 60 * 60 * 24 * 30
+                                case 'd':  _expires = "; max-age=" + +_expireTime * 86400; break; // 60 * 60 * 24
+                                case 'h': _expires = "; max-age=" + +_expireTime * 3600; break; // 60 * 60
+                                case 'min':  _expires = "; max-age=" + +_expireTime * 60; break; // 60
+                                case 's': _expires = "; max-age=" + _expireTime; break;
+                                case 'y': _expires = "; max-age=" + +_expireTime * 31104000; break; // 60 * 60 * 24 * 30 * 12
+                                default: new Error("unknown exception of 'set operation'");
+                            }
+                        } else {
+                            _expires = "; expires=" + expireTimes;
+                        }
+                        break;
+                    case Date:
+                        _expires = "; expires=" + expireTimes.toUTCString();
+                        break;
+                }
+            }
+            document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + _expires + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : defaultConfig.path) + (secure ? "; secure" : "");
+            return this;
+        },
+        remove: function(key, path, domain) {
+            if (!key || !this.isKey(key)) {
+                return false;
+            }
+            document.cookie = encodeURIComponent(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : defaultConfig.path);
+            return this;
+        },
+        isKey: function(key) {
+            return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        },
+        keys:  function() {
+            if(!document.cookie) return [];
+            var _keys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+            for (var _index = 0; _index < _keys.length; _index++) {
+                _keys[_index] = decodeURIComponent(_keys[_index]);
+            }
+            return _keys;
+        }
+    }
+
+    if (true) {
+        module.exports = VueCookies;
+    } else {}
+    // vue-cookies can exist independently,no dependencies library
+    if(typeof window!=="undefined"){
+        window.$cookies = VueCookies;
+    }
+
+})()
+
+/***/ }),
+
 /***/ "./node_modules/vue-functional-data-merge/dist/lib.esm.js":
 /*!****************************************************************!*\
   !*** ./node_modules/vue-functional-data-merge/dist/lib.esm.js ***!
@@ -41202,9 +41332,6 @@ var render = function() {
                 "button-size": "sm"
               },
               on: {
-                tasksUpdated: function($event) {
-                  _vm.updateHandler($event, "subtasks")
-                },
                 taskDeleted: function($event) {
                   _vm.deletedSubtask($event)
                 },
@@ -41212,7 +41339,7 @@ var render = function() {
                   _vm.changeSubtaskStatus($event)
                 },
                 taskNameChanged: function($event) {
-                  _vm.updateHandler($event, "name")
+                  _vm.changeSubtaskName($event)
                 },
                 taskAdded: function($event) {
                   _vm.newSubtaskAdded($event)
@@ -41547,28 +41674,24 @@ var render = function() {
               }
             },
             [
-              _c("span", { staticClass: "float-left", class: _vm.taskClass }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
+              _c(
+                "span",
+                { staticClass: "float-left", class: _vm.taskClass },
+                [
+                  _c("b-form-input", {
+                    attrs: { id: _vm.editId, type: "text" },
+                    on: { change: _vm.saveName },
+                    model: {
                       value: _vm.localName,
+                      callback: function($$v) {
+                        _vm.localName = $$v
+                      },
                       expression: "localName"
                     }
-                  ],
-                  attrs: { type: "text" },
-                  domProps: { value: _vm.localName },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.localName = $event.target.value
-                    }
-                  }
-                })
-              ])
+                  })
+                ],
+                1
+              )
             ]
           )
         : _vm._e(),
@@ -41812,18 +41935,7 @@ var render = function() {
                 [
                   _c(
                     "single-task",
-                    _vm._b(
-                      {
-                        on: {
-                          taskUpdated: function($event) {
-                            _vm.updateTask($event)
-                          }
-                        }
-                      },
-                      "single-task",
-                      _vm.selectedTask,
-                      false
-                    )
+                    _vm._b({}, "single-task", _vm.selectedTask, false)
                   )
                 ],
                 1
@@ -53108,6 +53220,8 @@ module.exports = function(module) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var bootstrap_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bootstrap-vue */ "./node_modules/bootstrap-vue/es/index.js");
 /* harmony import */ var _events_event_bus_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events/event-bus.js */ "./resources/js/events/event-bus.js");
+/* harmony import */ var vue_cookies__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-cookies */ "./node_modules/vue-cookies/vue-cookies.js");
+/* harmony import */ var vue_cookies__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(vue_cookies__WEBPACK_IMPORTED_MODULE_2__);
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -53119,6 +53233,9 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 
 
+
+vue_cookies__WEBPACK_IMPORTED_MODULE_2___default.a.config('7d');
+Vue.use(vue_cookies__WEBPACK_IMPORTED_MODULE_2___default.a);
 Vue.use(bootstrap_vue__WEBPACK_IMPORTED_MODULE_0__["default"]);
 Object.defineProperties(Vue.prototype, {
   $bus: {

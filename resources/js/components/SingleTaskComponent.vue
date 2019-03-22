@@ -5,25 +5,12 @@
         </div>
         <div class="card-body">
             <div>
-                <!-- <b-button variant="secondary" v-if="!showSubtasks" @click.stop="showSubtasks = !showSubtasks">
-                    {{ showSubtaskText }}
-                    <i class="far fa-angle-double-down"></i>
-                </b-button> -->
-
-                <!-- <a
-                        v-if="showSubtasks"
-                        class="btn float-right my-auto"
-                        title="Show Sub-tasks"
-                        @click.stop="showSubtasks = !showSubtasks">
-                    <i class="far fa-angle-double-up"></i>
-                </a> -->
                 <task-list
                     :tasks="watchedSubtasks"
                     title="Sub-Tasks"
-                    @tasksUpdated="updateHandler($event, 'subtasks')"
                     @taskDeleted="deletedSubtask($event)"
                     @taskStatusChanged="changeSubtaskStatus($event)"
-                    @taskNameChanged="updateHandler($event, 'name')"
+                    @taskNameChanged="changeSubtaskName($event)"
                     @taskAdded="newSubtaskAdded($event)"
                     show-header="false"
                     :type="taskListTypeSub"
@@ -70,6 +57,10 @@
             },
             getNewTask() {
                 return TASK_GENERATOR(this.name, this.status, this.expanded, this.subtasks, this.tags, this.id);
+            },
+            changeSubtaskName($event) {
+                this.$set(this.subtasks[$event.index], 'name', $event.name);
+                this.postSubtask(this.subtasks[$event.index], $event.index);
             },
             changeSubtaskStatus($event) {
                 let onDeselect = (task, index) => {

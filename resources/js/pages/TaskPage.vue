@@ -23,8 +23,7 @@
             <transition name="slide-fade">
                 <div :class="subtasksClass" v-if="taskExpanded">
                     <single-task
-                            v-bind="selectedTask"
-                            @taskUpdated="updateTask($event)">
+                            v-bind="selectedTask">
                     </single-task>
                 </div>
             </transition>
@@ -59,6 +58,10 @@
             TaskList
         },
         mixins: [ deleteTask, loadTasksMixin, saveTaskMixin, selectTaskMixin ],
+        created() {
+            const layout = this.$cookies.get('tasks_layout');
+            if (layout !== null) this.layout = layout;
+        },
         mounted() {
             if (this.firstLaunch === true) {
                 this.showTasks = true;
@@ -135,6 +138,7 @@
             setLayout(event) {
                 this.showTasks = false;
                 setTimeout(() => {
+                    this.$cookies.set('tasks_layout', event.layout);
                     this.layout = event.layout;
                     this.showTasks = true;
                 }, 300);
@@ -147,20 +151,15 @@
                 }
                 if (isExpanded) {
                     this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
-                }
-                setTimeout(() => {
-                    if (!isExpanded) {
-                        this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
-                    }
+                    setTimeout(() => {
+                        this.showTasks = true;
+                    }, 300);
+                    this.postTaskTrigger();
+                } else {
                     this.showTasks = true;
-                }, 300);
-                this.postTaskTrigger();
-            },
-            updateTask(data) {
-                this.selectedTask = data;
-            },
-            updateTasks(data) {
-                this.tasks = data;
+                    this.tasks[this.selectedTaskIndex].expanded = !this.tasks[this.selectedTaskIndex].expanded;
+                    this.postTaskTrigger();
+                }
             },
             updateSelectedTaskIndex() {
                 this.tasks.some((t, index) => {
