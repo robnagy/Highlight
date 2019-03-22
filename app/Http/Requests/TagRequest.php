@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Tag;
 use App\Traits\RouteUserIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,7 +24,6 @@ class TagRequest extends FormRequest
         {
             return $this->user()->can('update', [Tag::class, $user_id, $tag_id]);
         }
-
         return $this->user()->can('create', [Tag::class, $user_id]);
     }
 
