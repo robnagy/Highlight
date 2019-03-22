@@ -2374,11 +2374,13 @@ __webpack_require__.r(__webpack_exports__);
     return {
       editing: false,
       localName: "",
-      hover: false
+      hover: false,
+      isTouch: false
     };
   },
   mounted: function mounted() {
     this.localName = this.name;
+    this.isTouch = document.hasTouchSupport;
   },
   computed: {
     editId: function editId() {
@@ -2491,6 +2493,9 @@ __webpack_require__.r(__webpack_exports__);
     saveName: function saveName() {
       this.editing = false;
       this.$emit('taskNameChanged', this.localName);
+    },
+    setHover: function setHover(hover) {
+      this.hover = this.isTouch ? true : hover;
     },
     statusChanged: function statusChanged(status) {
       this.$emit('taskStatusChanged', status);
@@ -41641,10 +41646,10 @@ var render = function() {
           return _vm.markSelected($event)
         },
         mouseenter: function($event) {
-          _vm.hover = true
+          _vm.setHover(true)
         },
         mouseleave: function($event) {
-          _vm.hover = false
+          _vm.setHover(false)
         }
       }
     },
@@ -53309,6 +53314,16 @@ if (token) {
   window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 } else {
   console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+/**
+ * Set flag if touch events are supported
+*/
+
+
+document.hasTouchSupport = false;
+
+if ("ontouchstart" in document.documentElement) {
+  document.hasTouchSupport = true;
 }
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

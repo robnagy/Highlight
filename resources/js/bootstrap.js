@@ -39,6 +39,15 @@ if (token) {
 }
 
 /**
+ * Set flag if touch events are supported
+*/
+
+document.hasTouchSupport = false;
+if (("ontouchstart" in document.documentElement)) {
+    document.hasTouchSupport = true;
+}
+
+/**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
  * allows your team to easily build robust real-time web applications.

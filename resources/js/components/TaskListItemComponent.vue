@@ -3,8 +3,8 @@
         @click.stop="markSelected"
         :class="taskClass"
         title="Click to select"
-        @mouseenter="hover = true"
-        @mouseleave="hover = false"
+        @mouseenter="setHover(true)"
+        @mouseleave="setHover(false)"
         >
         <div class="col-md-5" v-if="!editMode">
             <span class="float-left text-left m-1 p-1" :class="taskClass">{{ localName }}</span>
@@ -98,10 +98,12 @@
                 editing: false,
                 localName: "",
                 hover: false,
+                isTouch: false,
             }
         },
         mounted() {
             this.localName = this.name;
+            this.isTouch = document.hasTouchSupport;
         },
         computed: {
             editId() {
@@ -201,6 +203,9 @@
             saveName() {
                 this.editing = false;
                 this.$emit('taskNameChanged', this.localName);
+            },
+            setHover(hover) {
+                this.hover = this.isTouch ? true : hover;
             },
             statusChanged(status) {
                 this.$emit('taskStatusChanged', status);
