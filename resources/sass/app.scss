@@ -15,11 +15,19 @@
 @import '~@fortawesome/fontawesome-free/scss/solid';
 //@import '~@fortawesome/fontawesome-free/scss/brands';
 
-// Element-UI
-//@import '~element-ui/lib/theme-chalk/index.css';
+// Theme styling
+@import '_themes.scss';
+
+// Navbar styling
+@import '_nav.scss';
 
 // Tasks styling
-@import 'tasks.scss';
+@import '_tasks.scss';
 
 // Tags styling
-@import 'tags.scss';
+@import '_tags.scss';
+
+// Transitions styling
+@import '_transitions.scss';
+
+

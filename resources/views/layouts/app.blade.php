@@ -11,8 +11,8 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body>
-<div id="app">
+<body class="theme-light">
+<div id="app" class="app-container">
 @section('navbar')
 <header>
     <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
@@ -72,7 +72,7 @@
 @section('show')
 
 <main role="main">
-    <section class="jumbotron text-center">
+    <section class="text-center">
         <div class="container">
             @yield('content')
         </div>

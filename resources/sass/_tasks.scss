@@ -1,0 +1,80 @@
+.task-page-header {
+    min-width: 33rem;
+    min-height: 4rem;
+}
+
+.task-page.title {
+    // max-width: 50%;
+    width: 100%;
+    height: 100%;
+    padding-left: 7%;
+}
+
+.task-page.title.text {
+    width: 80%;
+    font-weight: 600;
+    font-size: 3rem;
+    display: inline-block;
+}
+
+.task-page.selectors {
+    min-width: 5rem;
+    max-width: 10rem;
+    display: inline-block;
+}
+
+.task-layout-selector {
+  border: solid 0.1rem black;
+  min-width: 2rem;
+  padding: 0.1rem;
+  display: inline-block;
+  &.selected {
+    @include themify($themes) {
+        color: themed('textColor');
+        background: themed('altbackgroundColor');
+    }
+    border: solid 0.2rem black;
+  }
+  &.not-selected {
+    cursor: pointer;
+  }
+}
+
+.tasks {
+    margin-bottom: 1rem;
+}
+
+.task-item {
+  height: 1.5rem;
+  &:hover {
+    @include themify($themes) {
+      background-color: themed('itemHoverBackgroundColor');
+    }
+    cursor: pointer;
+  }
+}
+.task-new {
+  @include themify($themes) {
+    color: themed('darkTextColor');
+  }
+}
+.task-selected {
+  font-size: 1.1rem;
+  @include themify($themes) {
+    color: themed('darkTextColor');
+    background: themed('itemSelectedBackgroundColor');
+  }
+  font-weight: bolder;
+}
+.task-completed {
+  @include themify($themes) {
+    color: themed('darkTextColor2');
+  }
+  text-decoration: line-through;
+}
+
+.task-error {
+  color:red
+}
+
+

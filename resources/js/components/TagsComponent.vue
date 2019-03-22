@@ -122,7 +122,6 @@
         },
         watch:{
             taskid() {
-                console.log('tags id changed');
                 this.activeTags = [];
                 this.fetchTaskTags();
             }

@@ -1,5 +1,5 @@
 <template>
-    <div class="row align-items-center h-100"
+    <div class="row align-items-center h-100 task-list-item"
         @click.stop="markSelected"
         :class="taskClass"
         title="Click to select"
@@ -75,7 +75,7 @@
                     :class="taskClass"
                     title="Reopen task"
                     @click.stop="markNew">
-                <i class="far far-lock-open"></i>
+                <i class="far fa-edit"></i>
             </a>
             </a>
         </div>

@@ -1,0 +1,39 @@
+.fader-enter-active, .fader-leave-active {
+    transition: opacity 0.3s;
+  }
+
+.fader-enter, .fader-leave-to {
+    opacity: 0;
+}
+
+.slide-fade-enter-active {
+    transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to {
+    transform: translateX(10px);
+    opacity: 0;
+}
+
+.task-list-item {
+    transition: all 0.1s;
+}
+
+.task-list-item span {
+    transition: all 0.1s;
+}
+
+.task-list-item div {
+    transition: all 0.1s;
+}
+
+.task-list-enter, .task-list-leave-to
+/* .list-complete-leave-active below version 2.1.8 */ {
+opacity: 0;
+// transform: translateY(30px);
+}
+.task-list-leave-active {
+position: absolute;
+}

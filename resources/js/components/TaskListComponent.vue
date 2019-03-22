@@ -1,25 +1,28 @@
 <template>
-    <div class="card card-default">
+    <div class="tasks" :class="{ 'card-default': (showHeader === 'true'), 'card': (showHeader === 'true')}">
         <div class="card-header" v-if="showHeader === 'true'">
             <h3 v-if="type == taskListTypeMain">{{ title }} <span class="fas fa-list"></span></h3>
             <h5 v-if="type == taskListTypeSub">{{ title }} <span class="fas fa-list"></span> </h5>
         </div>
-        <div class="card-body">
+        <div  :class="{ 'card-body': (showHeader === 'true') }">
             <div
                     v-for="(task,index) in tasks"
                     class="task-item container h-100"
                     :key="index"
             >
+            <transition-group name="task-list">
                 <task-list-item
                         v-bind="task"
                         :index="index"
                         :type="type"
+                        :key="index"
                         @taskDeleted="deletedTask(index, $event)"
                         @taskStatusChanged="changeStatus(index, $event)"
                         @taskNameChanged="changeName(index, $event)"
                         @taskToggleExpanded="toggleExpanded()"
                         @dumpTasks="dump(tasks)"
                 ></task-list-item>
+            </transition-group>
             </div>
             <div class="addTask" v-if="showAddTasks">
                 <b-form-input
