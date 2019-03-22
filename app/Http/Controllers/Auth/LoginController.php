@@ -50,6 +50,6 @@ class LoginController extends Controller
     public function guestLogin()
     {
         $this->userService->loginGuestUser();
-        return redirect('/home');
+        return redirect('/tasks');
     }
 }
