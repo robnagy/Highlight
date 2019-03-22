@@ -2378,9 +2378,12 @@ __webpack_require__.r(__webpack_exports__);
       isTouch: false
     };
   },
+  created: function created() {
+    this.isTouch = document.hasTouchSupport;
+    if (this.isTouch) this.setHover();
+  },
   mounted: function mounted() {
     this.localName = this.name;
-    this.isTouch = document.hasTouchSupport;
   },
   computed: {
     editId: function editId() {

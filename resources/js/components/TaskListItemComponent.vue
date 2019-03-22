@@ -101,9 +101,12 @@
                 isTouch: false,
             }
         },
+        created() {
+            this.isTouch = document.hasTouchSupport;
+            if (this.isTouch) this.setHover();
+        },
         mounted() {
             this.localName = this.name;
-            this.isTouch = document.hasTouchSupport;
         },
         computed: {
             editId() {
