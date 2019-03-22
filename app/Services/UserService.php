@@ -4,8 +4,7 @@ namespace App\Services;
 
 use App\Interfaces\UserServiceInterface;
 use App\Models\User;
-Use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserService extends EloquentService implements UserServiceInterface
 {
