@@ -79,10 +79,6 @@
                 newTask[type] = $event;
                 this.updateParentTask(newTask);
             },
-            updateParentTask(task) {
-                console.log('updateParentTask');
-                TASKS_EVENT.taskUpdated(this, task);
-            },
         },
         computed: {
             showSubtaskText() {

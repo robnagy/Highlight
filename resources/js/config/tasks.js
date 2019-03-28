@@ -6,7 +6,6 @@ let TASKS_TEMPLATE = {
         "tags": [],
 };
 let TASK_GENERATOR = (name, status, expanded, subtasks, tags, id) => {
-    console.log("task generator running");
     let newTask = _.cloneDeep(TASKS_TEMPLATE);
     if (name) newTask.name = name;
     if (status) newTask.status = status;
