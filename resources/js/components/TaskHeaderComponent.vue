@@ -1,7 +1,7 @@
 <template>
     <div class="task-page-header">
         <div class="task-page title">
-            <div class="spacer-5"></div>
+            <div class="spacer-7"></div>
             <div class="task-page-date-selector" v-if="previous" @click.stop="setDate(previous)">
                 <i class="fas fa-chevron-circle-left" :title="previous"></i>
             </div>

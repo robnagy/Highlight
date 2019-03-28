@@ -46431,7 +46431,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "task-page-header" }, [
     _c("div", { staticClass: "task-page title" }, [
-      _c("div", { staticClass: "spacer-5" }),
+      _c("div", { staticClass: "spacer-7" }),
       _vm._v(" "),
       _vm.previous
         ? _c(
