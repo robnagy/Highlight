@@ -30,7 +30,8 @@
             <transition name="slide-fade">
                 <div :class="subtasksClass" v-if="taskExpanded">
                     <single-task
-                            v-bind="selectedTask">
+                            v-bind="selectedTask"
+                            @taskDisplayDateUpdated="changeTaskDisplayDate($event)">
                     </single-task>
                 </div>
             </transition>
@@ -109,11 +110,12 @@
                     this.postTask(this.tasks[index], index);
                 }
             },
-            deletedTask($event, index) {
-                this.deleteTask($event.id, $event.index);
-                if (this.selectedTaskIndex == $event.index) {
-                    this.selectedTaskIndex = null;
-                }
+            changeTaskDisplayDate(date) {
+                const index = this.selectedTaskIndex;
+                this.selectedTaskIndex = null;
+                let task = this.tasks.splice(index, 1)[0];
+                task.display_date = date;
+                this.postTask(task, null);
             },
             changeTaskName(data) {
                 let index = data.index;
@@ -123,6 +125,12 @@
             changeSubtaskName(data) {
                 let index = data.index;
                 this.tasks[this.selectedTaskIndex].subtasks[index].name = data.name;
+            },
+            deletedTask($event, index) {
+                this.deleteTask($event.id, $event.index);
+                if (this.selectedTaskIndex == $event.index) {
+                    this.selectedTaskIndex = null;
+                }
             },
             selectTask(index) {
                 const wasSelected = this.selectedTaskIndex === index;
@@ -176,7 +184,8 @@
                     if (t.status === TASK_STATUS.selected) {
                         this.selectedTaskIndex = index;
                         return true;
-                    } });
+                    }
+                });
             }
         },
         computed: {

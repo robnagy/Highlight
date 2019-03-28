@@ -1775,13 +1775,15 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
-/* harmony import */ var _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TaskListComponent.vue */ "./resources/js/components/TaskListComponent.vue");
-/* harmony import */ var _TagsComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TagsComponent */ "./resources/js/components/TagsComponent.vue");
-/* harmony import */ var _mixins_loadSubtasksMixin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mixins/loadSubtasksMixin */ "./resources/js/mixins/loadSubtasksMixin.js");
-/* harmony import */ var _mixins_saveSubtaskMixin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/saveSubtaskMixin */ "./resources/js/mixins/saveSubtaskMixin.js");
-/* harmony import */ var _mixins_deleteSubtaskMixin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mixins/deleteSubtaskMixin */ "./resources/js/mixins/deleteSubtaskMixin.js");
-/* harmony import */ var _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../mixins/selectTaskMixin */ "./resources/js/mixins/selectTaskMixin.js");
+/* harmony import */ var vuejs_datepicker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuejs-datepicker */ "./node_modules/vuejs-datepicker/dist/vuejs-datepicker.esm.js");
+/* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
+/* harmony import */ var _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TaskListComponent.vue */ "./resources/js/components/TaskListComponent.vue");
+/* harmony import */ var _TagsComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TagsComponent */ "./resources/js/components/TagsComponent.vue");
+/* harmony import */ var _mixins_loadSubtasksMixin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/loadSubtasksMixin */ "./resources/js/mixins/loadSubtasksMixin.js");
+/* harmony import */ var _mixins_saveSubtaskMixin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mixins/saveSubtaskMixin */ "./resources/js/mixins/saveSubtaskMixin.js");
+/* harmony import */ var _mixins_deleteSubtaskMixin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../mixins/deleteSubtaskMixin */ "./resources/js/mixins/deleteSubtaskMixin.js");
+/* harmony import */ var _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../mixins/selectTaskMixin */ "./resources/js/mixins/selectTaskMixin.js");
+/* harmony import */ var _mixins_datesMixin__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../mixins/datesMixin */ "./resources/js/mixins/datesMixin.js");
 //
 //
 //
@@ -1809,6 +1811,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+
+
 
 
 
@@ -1818,11 +1828,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    TaskList: _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
-    TagsComponent: _TagsComponent__WEBPACK_IMPORTED_MODULE_2__["default"]
+    Datepicker: vuejs_datepicker__WEBPACK_IMPORTED_MODULE_0__["default"],
+    TaskList: _TaskListComponent_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    TagsComponent: _TagsComponent__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
-  mixins: [_mixins_deleteSubtaskMixin__WEBPACK_IMPORTED_MODULE_5__["default"], _mixins_loadSubtasksMixin__WEBPACK_IMPORTED_MODULE_3__["default"], _mixins_saveSubtaskMixin__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_6__["default"]],
-  props: ['name', 'status', 'expanded', 'tags', 'id'],
+  mixins: [_mixins_datesMixin__WEBPACK_IMPORTED_MODULE_8__["default"], _mixins_deleteSubtaskMixin__WEBPACK_IMPORTED_MODULE_6__["default"], _mixins_loadSubtasksMixin__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_saveSubtaskMixin__WEBPACK_IMPORTED_MODULE_5__["default"], _mixins_selectTaskMixin__WEBPACK_IMPORTED_MODULE_7__["default"]],
+  props: ['name', 'status', 'expanded', 'tags', 'id', 'display_date'],
   data: function data() {
     return {
       'subtasks': [],
@@ -1834,6 +1845,11 @@ __webpack_require__.r(__webpack_exports__);
     this.watchedSubtasks = _.cloneDeep(this.subtasks);
   },
   methods: {
+    changeTaskDisplayDate: function changeTaskDisplayDate($event) {
+      if ($event.toDateString() !== this.taskDate.toDateString()) {
+        _config_tasks__WEBPACK_IMPORTED_MODULE_1__["TASKS_EVENT"].taskDisplayDateUpdated(this, this.formatDate($event));
+      }
+    },
     deletedSubtask: function deletedSubtask($event) {
       this.deleteSubtask($event, this.id);
     },
@@ -1842,7 +1858,7 @@ __webpack_require__.r(__webpack_exports__);
       this.postSubtask($event, index);
     },
     getNewTask: function getNewTask() {
-      return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subtasks, this.tags, this.id);
+      return Object(_config_tasks__WEBPACK_IMPORTED_MODULE_1__["TASK_GENERATOR"])(this.name, this.status, this.expanded, this.subtasks, this.tags, this.id);
     },
     changeSubtaskName: function changeSubtaskName($event) {
       this.$set(this.subtasks[$event.index], 'name', $event.name);
@@ -1855,7 +1871,7 @@ __webpack_require__.r(__webpack_exports__);
         _this.postSubtask(task, index);
       };
 
-      if ($event.status == _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].selected) {
+      if ($event.status == _config_tasks__WEBPACK_IMPORTED_MODULE_1__["TASK_STATUS"].selected) {
         var onChange = function onChange(task, index) {
           _this.postSubtask(task, index);
         };
@@ -1881,8 +1897,11 @@ __webpack_require__.r(__webpack_exports__);
         return "Add subtasks";
       }
     },
+    taskDate: function taskDate() {
+      return this.dateTimeStringToDate(this.display_date);
+    },
     taskListTypeSub: function taskListTypeSub() {
-      return _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_TYPE"].subtasks;
+      return _config_tasks__WEBPACK_IMPORTED_MODULE_1__["TASKS_TYPE"].subtasks;
     },
     GET_USER_ID: function GET_USER_ID() {
       return this.$store.getters.GET_USER_ID;
@@ -2064,6 +2083,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
 /* harmony import */ var vuejs_datepicker__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuejs-datepicker */ "./node_modules/vuejs-datepicker/dist/vuejs-datepicker.esm.js");
+/* harmony import */ var _mixins_datesMixin_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../mixins/datesMixin.js */ "./resources/js/mixins/datesMixin.js");
 //
 //
 //
@@ -2103,6 +2123,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2110,6 +2131,7 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     Datepicker: vuejs_datepicker__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
+  mixins: [_mixins_datesMixin_js__WEBPACK_IMPORTED_MODULE_2__["default"]],
   data: function data() {
     return {
       date: null,
@@ -2167,10 +2189,6 @@ __webpack_require__.r(__webpack_exports__);
 
       return "Loading";
     },
-    today: function today() {
-      var d = new Date();
-      return this.formatDate(d);
-    },
     verticalSelectorClass: function verticalSelectorClass() {
       if (this.layout === "vertical") {
         return "selected";
@@ -2182,25 +2200,6 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    changeDate: function changeDate(dateObject) {
-      this.showDatePicker = false;
-      this.date = this.formatDate(dateObject);
-    },
-    dateStringToObject: function dateStringToObject(date) {
-      var dateParts = date.split('-');
-      var d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-      var dArray = this.date.split('-');
-      d.setFullYear = dArray[0];
-      d.setMonth = dArray[1] - 1;
-      d.setDate = dArray[2];
-      return d;
-    },
-    formatDate: function formatDate(d) {
-      return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-    },
-    setDate: function setDate(date) {
-      this.date = date;
-    },
     setLayout: function setLayout(layout) {
       this.$emit('changeLayout', {
         layout: layout
@@ -2681,6 +2680,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -2758,12 +2758,12 @@ __webpack_require__.r(__webpack_exports__);
         this.postTask(this.tasks[index], index);
       }
     },
-    deletedTask: function deletedTask($event, index) {
-      this.deleteTask($event.id, $event.index);
-
-      if (this.selectedTaskIndex == $event.index) {
-        this.selectedTaskIndex = null;
-      }
+    changeTaskDisplayDate: function changeTaskDisplayDate(date) {
+      var index = this.selectedTaskIndex;
+      this.selectedTaskIndex = null;
+      var task = this.tasks.splice(index, 1)[0];
+      task.display_date = date;
+      this.postTask(task, null);
     },
     changeTaskName: function changeTaskName(data) {
       var index = data.index;
@@ -2773,6 +2773,13 @@ __webpack_require__.r(__webpack_exports__);
     changeSubtaskName: function changeSubtaskName(data) {
       var index = data.index;
       this.tasks[this.selectedTaskIndex].subtasks[index].name = data.name;
+    },
+    deletedTask: function deletedTask($event, index) {
+      this.deleteTask($event.id, $event.index);
+
+      if (this.selectedTaskIndex == $event.index) {
+        this.selectedTaskIndex = null;
+      }
     },
     selectTask: function selectTask(index) {
       var _this = this;
@@ -46329,7 +46336,22 @@ var render = function() {
               return _vm.updateHandler($event, "tags")
             }
           }
-        })
+        }),
+        _vm._v(" "),
+        _c(
+          "div",
+          [
+            _c("datepicker", {
+              attrs: { value: _vm.taskDate },
+              on: {
+                selected: function($event) {
+                  return _vm.changeTaskDisplayDate($event)
+                }
+              }
+            })
+          ],
+          1
+        )
       ],
       1
     )
@@ -47002,7 +47024,18 @@ var render = function() {
                 [
                   _c(
                     "single-task",
-                    _vm._b({}, "single-task", _vm.selectedTask, false)
+                    _vm._b(
+                      {
+                        on: {
+                          taskDisplayDateUpdated: function($event) {
+                            return _vm.changeTaskDisplayDate($event)
+                          }
+                        }
+                      },
+                      "single-task",
+                      _vm.selectedTask,
+                      false
+                    )
                   )
                 ],
                 1
@@ -61252,6 +61285,7 @@ var TASKS_TYPE = {
 };
 var TASKS_EVENT_NAME = {
   taskAdded: "taskAdded",
+  taskDisplayDateUpdated: "taskDisplayDateUpdated",
   taskRenamed: "taskRenamed",
   taskStatusChanged: "taskStatusChanged",
   taskToggleExpanded: "taskToggleExpanded",
@@ -61262,6 +61296,9 @@ var TASKS_EVENT_NAME = {
 var TASKS_EVENT = {
   taskAdded: function taskAdded(context, task) {
     context.$emit(TASKS_EVENT_NAME.taskAdded, task);
+  },
+  taskDisplayDateUpdated: function taskDisplayDateUpdated(context, value) {
+    context.$emit(TASKS_EVENT_NAME.taskDisplayDateUpdated, value);
   },
   taskToggleExpanded: function taskToggleExpanded(context) {
     context.$emit(TASKS_EVENT_NAME.taskToggleExpanded);
@@ -61306,6 +61343,51 @@ __webpack_require__.r(__webpack_exports__);
 
 var EventBus = new vue__WEBPACK_IMPORTED_MODULE_0___default.a();
 /* harmony default export */ __webpack_exports__["default"] = (EventBus);
+
+/***/ }),
+
+/***/ "./resources/js/mixins/datesMixin.js":
+/*!*******************************************!*\
+  !*** ./resources/js/mixins/datesMixin.js ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  computed: {
+    today: function today() {
+      var d = new Date();
+      return this.formatDate(d);
+    }
+  },
+  methods: {
+    changeDate: function changeDate(dateObject) {
+      this.showDatePicker = false;
+      this.date = this.formatDate(dateObject);
+    },
+    dateStringToObject: function dateStringToObject(date) {
+      var dateParts = date.split('-');
+      var d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+      var dArray = date.split('-');
+      d.setFullYear = dArray[0];
+      d.setMonth = dArray[1] - 1;
+      d.setDate = dArray[2];
+      return d;
+    },
+    dateTimeStringToDate: function dateTimeStringToDate(dateTime) {
+      var date = dateTime.split(' ')[0];
+      return this.dateStringToObject(date);
+    },
+    formatDate: function formatDate(d) {
+      return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    },
+    setDate: function setDate(date) {
+      this.date = date;
+    }
+  }
+});
 
 /***/ }),
 
@@ -61648,7 +61730,9 @@ __webpack_require__.r(__webpack_exports__);
       _utils_network_client__WEBPACK_IMPORTED_MODULE_1__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_0__["default"].v1.patch.task, data, placeholders, null, onSuccess, onFailure);
     },
     postTaskSuccess: function postTaskSuccess(response, index, url) {
-      this.$set(this.tasks, index, response.data);
+      if (index !== null) {
+        this.$set(this.tasks, index, response.data);
+      }
     },
     postTaskFailure: function postTaskFailure(response, index, url) {
       console.log("POST task failed for index " + index + " for url " + url);

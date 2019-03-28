@@ -21,11 +21,18 @@
 
             <tags-component :taskid="id" @tagsUpdated="updateHandler($event, 'tags')"></tags-component>
 
+            <div>
+                <datepicker
+                    :value="taskDate"
+                    @selected="changeTaskDisplayDate($event)"
+                ></datepicker>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+    import Datepicker from 'vuejs-datepicker';
     import {TASKS_TEMPLATE, TASK_GENERATOR, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE, TASKS_UTILITY} from '../config/tasks';
     import TaskList from "./TaskListComponent.vue";
     import TagsComponent from "./TagsComponent";
@@ -33,10 +40,11 @@
     import saveSubtaskMixin from '../mixins/saveSubtaskMixin';
     import deleteSubtaskMixin from '../mixins/deleteSubtaskMixin';
     import selectTaskMixin from '../mixins/selectTaskMixin';
+    import datesMixin from '../mixins/datesMixin';
     export default {
-        components: { TaskList, TagsComponent },
-        mixins: [deleteSubtaskMixin, loadSubtasksMixin, saveSubtaskMixin, selectTaskMixin],
-        props: ['name', 'status', 'expanded', 'tags', 'id'],
+        components: { Datepicker, TaskList, TagsComponent },
+        mixins: [datesMixin, deleteSubtaskMixin, loadSubtasksMixin, saveSubtaskMixin, selectTaskMixin],
+        props: ['name', 'status', 'expanded', 'tags', 'id', 'display_date'],
         data() {
             return {
                 'subtasks': [],
@@ -48,6 +56,11 @@
             this.watchedSubtasks = _.cloneDeep(this.subtasks);
         },
         methods: {
+            changeTaskDisplayDate($event) {
+                if ($event.toDateString() !== this.taskDate.toDateString()) {
+                    TASKS_EVENT.taskDisplayDateUpdated(this, this.formatDate($event));
+                }
+            },
             deletedSubtask($event) {
                 this.deleteSubtask($event, this.id);
             },
@@ -87,6 +100,9 @@
                 } else {
                     return "Add subtasks"
                 }
+            },
+            taskDate() {
+                return this.dateTimeStringToDate(this.display_date);
             },
             taskListTypeSub() {
                 return TASKS_TYPE.subtasks;

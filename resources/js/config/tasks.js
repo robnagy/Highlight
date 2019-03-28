@@ -29,6 +29,7 @@ let TASKS_TYPE = {
 };
 let TASKS_EVENT_NAME = {
     taskAdded: "taskAdded",
+    taskDisplayDateUpdated: "taskDisplayDateUpdated",
     taskRenamed: "taskRenamed",
     taskStatusChanged: "taskStatusChanged",
     taskToggleExpanded: "taskToggleExpanded",
@@ -39,6 +40,9 @@ let TASKS_EVENT_NAME = {
 let TASKS_EVENT = {
     taskAdded(context, task) {
         context.$emit(TASKS_EVENT_NAME.taskAdded, task);
+    },
+    taskDisplayDateUpdated(context, value) {
+        context.$emit(TASKS_EVENT_NAME.taskDisplayDateUpdated, value);
     },
     taskToggleExpanded(context) {
         context.$emit(TASKS_EVENT_NAME.taskToggleExpanded)

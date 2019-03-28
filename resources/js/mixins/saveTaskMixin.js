@@ -23,7 +23,9 @@ export default {
             NetworkClient.request(api.v1.patch.task, data, placeholders, null, onSuccess, onFailure);
         },
         postTaskSuccess(response, index, url) {
-            this.$set(this.tasks, index, response.data);
+            if (index !== null) {
+                this.$set(this.tasks, index, response.data);
+            }
         },
         postTaskFailure(response, index, url) {
             console.log("POST task failed for index "+index+" for url "+url);

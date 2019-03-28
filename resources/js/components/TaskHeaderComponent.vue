@@ -40,9 +40,11 @@
 <script>
     import { TASKS_EVENT } from '../config/tasks';
     import Datepicker from 'vuejs-datepicker';
+    import datesMixin from '../mixins/datesMixin.js'
     export default {
         props: ["layout", "previous", "next", "otherTaskDates"],
         components: { Datepicker },
+        mixins: [ datesMixin ],
         data() {
             return {
                 date: null,
@@ -92,10 +94,6 @@
                 }
                 return "Loading";
             },
-            today() {
-                let d = new Date;
-                return this.formatDate(d);
-            },
             verticalSelectorClass() {
                 if (this.layout === "vertical") {
                     return "selected";
@@ -105,25 +103,6 @@
             },
         },
         methods: {
-            changeDate(dateObject) {
-                this.showDatePicker = false;
-                this.date = this.formatDate(dateObject);
-            },
-            dateStringToObject(date) {
-                let dateParts = date.split('-');
-                let d = new Date(dateParts[0], dateParts[1] -1, dateParts[2]);
-                let dArray = this.date.split('-');
-                    d.setFullYear = dArray[0];
-                    d.setMonth = dArray[1] -1;
-                    d.setDate = dArray[2];
-                return d;
-            },
-            formatDate(d) {
-                return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-            },
-            setDate(date) {
-                this.date = date;
-            },
             setLayout(layout) {
                 this.$emit('changeLayout', { layout })
             }
