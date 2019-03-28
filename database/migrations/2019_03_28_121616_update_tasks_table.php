@@ -15,7 +15,9 @@ class UpdateTasksTable extends Migration
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->dateTime('display_date')->after('status')->default(DB::raw('NOW()'));
-            $table->dropColumn(['subTasks']);
+            if (Schema::hasColumn('tasks', 'subTasks')) {
+                $table->dropColumn(['subTasks']);
+            }
         });
     }
 
@@ -26,8 +28,10 @@ class UpdateTasksTable extends Migration
      */
     public function down()
     {
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->dropColumn(['display_date']);
-        });
+        if (Schema::hasColumn('tasks', 'display_date')) {
+            Schema::table('tasks', function (Blueprint $table) {
+                $table->dropColumn(['display_date']);
+            });
+        }
     }
 }

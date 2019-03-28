@@ -43,6 +43,15 @@
     display: inline-block;
 }
 
+.task-page.date-dropdown {
+    width: 19rem;
+    height: 5rem;
+    margin-left: -15rem;
+    position: absolute;
+    z-index: 2000;
+    display: inline-block;
+}
+
 .task-layout-selector {
   border: solid 0.1rem black;
   min-width: 2rem;
