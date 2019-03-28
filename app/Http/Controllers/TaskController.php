@@ -40,11 +40,11 @@ class TaskController extends Controller
         $dates = [
             'previous' => $this->taskService->getPreviousTaskDate($user_id, $date),
             'next' => $this->taskService->getFutureTaskDate($user_id, $date),
+            'all' =>  $this->taskService->getAllTaskDates($user_id),
         ];
         $response = [ 'data' => $tasks, 'meta' => ['dates' => $dates]];
         return $response;
     }
-
 
     /**
      * Store a newly created task in storage.

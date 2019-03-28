@@ -21,6 +21,7 @@ export default {
             this.tasks = result.data;
             this.next = result.meta.dates.next || null;
             this.previous = result.meta.dates.previous || null;
+            this.otherTaskDates = result.meta.dates.all || null;
             this.updateSelectedTaskIndex();
         },
         tasksGetFailure(e, url) {

@@ -1871,10 +1871,6 @@ __webpack_require__.r(__webpack_exports__);
       var newTask = this.getNewTask();
       newTask[type] = $event;
       this.updateParentTask(newTask);
-    },
-    updateParentTask: function updateParentTask(task) {
-      console.log('updateParentTask');
-      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskUpdated(this, task);
     }
   },
   computed: {
@@ -2106,10 +2102,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["layout", "previous", "next"],
+  props: ["layout", "previous", "next", "otherTaskDates"],
   components: {
     Datepicker: vuejs_datepicker__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
@@ -2121,9 +2118,19 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     this.date = this.today;
-    console.log(this.date);
   },
   computed: {
+    highlightedDates: function highlightedDates() {
+      var _this = this;
+
+      var dates = [];
+      this.otherTaskDates.forEach(function (date) {
+        dates.push(_this.dateStringToObject(date));
+      });
+      return {
+        dates: dates
+      };
+    },
     horizontalSelectorClass: function horizontalSelectorClass() {
       if (this.layout === "horizontal") {
         return "selected";
@@ -2141,21 +2148,15 @@ __webpack_require__.r(__webpack_exports__);
       return this.next;
     },
     selectedDateObject: function selectedDateObject() {
-      var d = new Date();
-
       if (this.date !== null) {
-        var dArray = this.date.split('-');
-        d.setFullYear = dArray[0];
-        d.setMonth = dArray[1] - 1;
-        d.setDate = dArray[2];
+        return this.dateStringToObject(this.date);
+      } else {
+        return new Date();
       }
-
-      return d;
     },
     title: function title() {
       if (this.date !== null) {
-        var dateParts = this.date.split('-');
-        var d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+        var d = this.dateStringToObject(this.date);
 
         if (this.formatDate(d) !== this.today) {
           return d.toDateString();
@@ -2183,9 +2184,16 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     changeDate: function changeDate(dateObject) {
       this.showDatePicker = false;
-      console.log("change date");
-      console.log(dateObject);
       this.date = this.formatDate(dateObject);
+    },
+    dateStringToObject: function dateStringToObject(date) {
+      var dateParts = date.split('-');
+      var d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+      var dArray = this.date.split('-');
+      d.setFullYear = dArray[0];
+      d.setMonth = dArray[1] - 1;
+      d.setDate = dArray[2];
+      return d;
     },
     formatDate: function formatDate(d) {
       return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
@@ -2672,6 +2680,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -2686,6 +2695,7 @@ __webpack_require__.r(__webpack_exports__);
       "firstLaunch": true,
       "layout": "vertical",
       "next": null,
+      "otherTaskDates": [],
       "previous": null,
       "showTasks": false,
       "title": "Tasks",
@@ -46458,7 +46468,11 @@ var render = function() {
               { staticClass: "task-page date-dropdown" },
               [
                 _c("datepicker", {
-                  attrs: { inline: true, value: _vm.selectedDateObject },
+                  attrs: {
+                    inline: true,
+                    highlighted: _vm.highlightedDates,
+                    value: _vm.selectedDateObject
+                  },
                   on: {
                     selected: function($event) {
                       return _vm.changeDate($event)
@@ -46918,7 +46932,12 @@ var render = function() {
       { staticClass: "row justify-content-center" },
       [
         _c("task-header", {
-          attrs: { previous: _vm.previous, next: _vm.next, layout: _vm.layout },
+          attrs: {
+            previous: _vm.previous,
+            next: _vm.next,
+            otherTaskDates: _vm.otherTaskDates,
+            layout: _vm.layout
+          },
           on: {
             changeLayout: function($event) {
               return _vm.setLayout($event)
@@ -61208,8 +61227,6 @@ var TASKS_TEMPLATE = {
 };
 
 var TASK_GENERATOR = function TASK_GENERATOR(name, status, expanded, subtasks, tags, id) {
-  console.log("task generator running");
-
   var newTask = _.cloneDeep(TASKS_TEMPLATE);
 
   if (name) newTask.name = name;
@@ -61459,6 +61476,7 @@ __webpack_require__.r(__webpack_exports__);
       this.tasks = result.data;
       this.next = result.meta.dates.next || null;
       this.previous = result.meta.dates.previous || null;
+      this.otherTaskDates = result.meta.dates.all || null;
       this.updateSelectedTaskIndex();
     },
     tasksGetFailure: function tasksGetFailure(e, url) {

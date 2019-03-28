@@ -66,7 +66,7 @@ class TaskService extends EloquentService implements TaskServiceInterface
                             ));
         $date = $date->date ?? null;
         if ($date) {
-            $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-n-j');
+            $date = $this->formatDateForFrontend($date);
         }
         return $date;
     }
@@ -84,8 +84,30 @@ class TaskService extends EloquentService implements TaskServiceInterface
                             ));
         $date = $date->date ?? null;
         if ($date) {
-            $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-n-j');
+            $date = $this->formatDateForFrontend($date);
         }
         return $date;
+    }
+
+    public function getAllTaskDates(int $user_id) : ?array
+    {
+        $dates = $this->model->where('user_id', $user_id)
+                            ->groupBy('date')
+                            ->orderBy('date', 'ASC')
+                            ->get(array(
+                                DB::raw('Date(display_date) as date'),
+                                // DB::raw('COUNT(*) as "tasks"')
+                            ));
+        $dates = $dates->toArray();
+        $dates = array_column($dates, 'date');
+        foreach ($dates as &$date) {
+            $date = $this->formatDateForFrontend($date);
+        }
+        return $dates;
+    }
+
+    protected function formatDateForFrontend(string $date) : string
+    {
+        return Carbon::createFromFormat('Y-m-d', $date)->format('Y-n-j');
     }
 }

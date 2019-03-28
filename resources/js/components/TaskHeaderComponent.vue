@@ -17,6 +17,7 @@
                 <div class="task-page date-dropdown" v-if="showDatePicker">
                     <datepicker
                         :inline="true"
+                        :highlighted="highlightedDates"
                         :value="selectedDateObject"
                         @selected="changeDate($event)"
                     ></datepicker>
@@ -40,7 +41,7 @@
     import { TASKS_EVENT } from '../config/tasks';
     import Datepicker from 'vuejs-datepicker';
     export default {
-        props: ["layout", "previous", "next"],
+        props: ["layout", "previous", "next", "otherTaskDates"],
         components: { Datepicker },
         data() {
             return {
@@ -51,9 +52,15 @@
         },
         mounted() {
             this.date = this.today;
-            console.log(this.date);
         },
         computed: {
+            highlightedDates() {
+                let dates = [];
+                this.otherTaskDates.forEach((date) => {
+                    dates.push(this.dateStringToObject(date));
+                });
+                return {dates};
+            },
             horizontalSelectorClass() {
                 if (this.layout === "horizontal") {
                     return "selected";
@@ -68,19 +75,15 @@
                 return this.next;
             },
             selectedDateObject() {
-                let d = new Date();
                 if (this.date !== null) {
-                    let dArray = this.date.split('-');
-                    d.setFullYear = dArray[0];
-                    d.setMonth = dArray[1] -1;
-                    d.setDate = dArray[2];
+                    return this.dateStringToObject(this.date);
+                } else {
+                    return new Date();
                 }
-                return d;
             },
             title() {
                 if (this.date !== null) {
-                    let dateParts = this.date.split('-');
-                    let d = new Date(dateParts[0], dateParts[1] -1, dateParts[2]);
+                    let d = this.dateStringToObject(this.date);
                     if (this.formatDate(d) !== this.today) {
                         return d.toDateString();
                     } else {
@@ -104,9 +107,16 @@
         methods: {
             changeDate(dateObject) {
                 this.showDatePicker = false;
-                console.log("change date");
-                console.log(dateObject);
                 this.date = this.formatDate(dateObject);
+            },
+            dateStringToObject(date) {
+                let dateParts = date.split('-');
+                let d = new Date(dateParts[0], dateParts[1] -1, dateParts[2]);
+                let dArray = this.date.split('-');
+                    d.setFullYear = dArray[0];
+                    d.setMonth = dArray[1] -1;
+                    d.setDate = dArray[2];
+                return d;
             },
             formatDate(d) {
                 return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();

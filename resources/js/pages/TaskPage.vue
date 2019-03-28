@@ -3,6 +3,7 @@
         <div class="row justify-content-center">
             <task-header :previous="previous"
                 :next="next"
+                :otherTaskDates="otherTaskDates"
                 :layout="layout"
                 @changeLayout="setLayout($event)"
                 @dateChanged="getTasks($event)">
@@ -52,6 +53,7 @@
                 "firstLaunch": true,
                 "layout": "vertical",
                 "next": null,
+                "otherTaskDates": [],
                 "previous": null,
                 "showTasks": false,
                 "title":"Tasks",

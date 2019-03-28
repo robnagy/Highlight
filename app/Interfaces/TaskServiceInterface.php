@@ -62,4 +62,13 @@ interface TaskServiceInterface extends EloquentServiceInterface
      */
     public function getFutureTaskDate(int $user_id, string $date = null) : ?string;
 
+    /**
+     * Returns all dates that have a task
+     * assigned, for given $user_id.
+     *
+     * @param integer $user_id
+     * @return string|null
+     */
+    public function getAllTaskDates(int $user_id) : ?array;
+
 }
