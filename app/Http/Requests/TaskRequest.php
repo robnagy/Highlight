@@ -37,12 +37,14 @@ class TaskRequest extends FormRequest
         $name = 'required|string|max:255';
         $status = 'required|string|max:255|in:new,completed,editing,selected';
         $expanded = 'boolean';
+        $display_date = 'required|date';
         $user_id = 'exists:users,id';
 
         return [
             'name' => $name,
             'status' => $status,
             'expanded' => $expanded,
+            'display_date' => $display_date,
             'user_id' => $user_id,
         ];
     }

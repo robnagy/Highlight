@@ -108,7 +108,7 @@ interface EloquentServiceInterface
      * Returns columns for query built with $values associative array.
      * e.g. Columns ['id']
      * e.g. Values ['name' => 'bob']
-     * Returns the 'id' of the resource where 'name' is equal to 'bob'
+     * e.g. Returns [ 'id' => 2 ]
      *
      * @param array $columns
      * @param array $values

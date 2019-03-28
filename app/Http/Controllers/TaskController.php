@@ -33,10 +33,15 @@ class TaskController extends Controller
      * @var mixed $user_id
      * @return \Illuminate\Http\Response
      */
-    public function indexForUser($user_id)
+    public function indexForUser(int $user_id, string $date = null)
     {
         $this->authorize('view', [User::class, $user_id]);
-        $response = [ 'data' => $this->taskService->allForUserWith($user_id, ['tags']) ];
+        $tasks = $this->taskService->tasksForUser($user_id, $date);
+        $dates = [
+            'previous' => $this->taskService->getPreviousTaskDate($user_id, $date),
+            'next' => $this->taskService->getFutureTaskDate($user_id, $date),
+        ];
+        $response = [ 'data' => $tasks, 'meta' => ['dates' => $dates]];
         return $response;
     }
 

@@ -1,7 +1,12 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <task-header :layout="layout" @changeLayout="setLayout($event)"></task-header>
+            <task-header :previous="previous"
+                :next="next"
+                :layout="layout"
+                @changeLayout="setLayout($event)"
+                @dateChanged="getTasks($event)">
+                </task-header>
         </div>
         <div class="row justify-content-center">
             <transition name="fader">
@@ -17,6 +22,7 @@
                             show-header="true"
                             button-variant="primary"
                             :type="taskListTypeMain"
+                            :date="date"
                     ></task-list>
                 </div>
             </transition>
@@ -45,6 +51,8 @@
             return {
                 "firstLaunch": true,
                 "layout": "vertical",
+                "next": null,
+                "previous": null,
                 "showTasks": false,
                 "title":"Tasks",
                 "tasks": [],

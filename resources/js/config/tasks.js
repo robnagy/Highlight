@@ -2,7 +2,7 @@ let TASKS_TEMPLATE = {
         "name": "",
         "status": "",
         "expanded": false,
-        "subtasks": [],
+        "display_date": null,
         "tags": [],
 };
 let TASK_GENERATOR = (name, status, expanded, subtasks, tags, id) => {
@@ -34,6 +34,7 @@ let TASKS_EVENT_NAME = {
     taskStatusChanged: "taskStatusChanged",
     taskToggleExpanded: "taskToggleExpanded",
     taskUpdated: "taskUpdated",
+    tasksPageDateChanged: "dateChanged",
     tasksUpdated: "tasksUpdated",
 };
 let TASKS_EVENT = {
@@ -53,8 +54,10 @@ let TASKS_EVENT = {
         task = _.cloneDeep(task);
         context.$emit(TASKS_EVENT_NAME.taskUpdated, task)
     },
+    tasksPageDateChanged(context, date) {
+        context.$emit(TASKS_EVENT_NAME.tasksPageDateChanged, {date})
+    },
     tasksUpdated(context, tasks) {
-        // tasks = _.cloneDeep(tasks);
         context.$emit(TASKS_EVENT_NAME.tasksUpdated, tasks)
     },
 };

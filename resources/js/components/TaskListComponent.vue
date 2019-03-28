@@ -44,7 +44,7 @@
     import {TASKS_TEMPLATE, TASK_STATUS, TASKS_EVENT_NAME, TASKS_EVENT, TASKS_TYPE} from '../config/tasks';
     import TaskListItem from './TaskListItemComponent';
     export default {
-        props: ['tasks', 'title', 'type', 'showHeader', 'buttonVariant', 'buttonSize'],
+        props: ['tasks', 'title', 'type', 'showHeader', 'buttonVariant', 'buttonSize', 'date'],
         data() {
             return {
                 "newTaskName": "",
@@ -83,15 +83,16 @@
         },
         methods: {
             addTask() {
-               this.taskNameError = "";
-               this.validateTaskName(this.newTaskName, () => {
-                   let task = _.cloneDeep(TASKS_TEMPLATE);
-                   task.name = this.newTaskName;
-                   task.status = TASK_STATUS.new;
-                   this.newTaskName = "";
-                   this.taskNameError = "";
-                   TASKS_EVENT.taskAdded(this, task);
-               })
+                this.taskNameError = "";
+                this.validateTaskName(this.newTaskName, () => {
+                    let task = _.cloneDeep(TASKS_TEMPLATE);
+                    task.name = this.newTaskName;
+                    task.status = TASK_STATUS.new;
+                    task.display_date = this.date;
+                    this.newTaskName = "";
+                    this.taskNameError = "";
+                    TASKS_EVENT.taskAdded(this, task);
+                })
             },
             changeStatus(index, action) {
                 TASKS_EVENT.taskStatusChanged(this, index, action);

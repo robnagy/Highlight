@@ -11,6 +11,8 @@ use App\Services\SubtaskService;
 use Illuminate\Database\Eloquent\Collection;
 Use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TaskService extends EloquentService implements TaskServiceInterface
 {
@@ -40,5 +42,50 @@ class TaskService extends EloquentService implements TaskServiceInterface
     public function getTaskUserId(int $task_id) : ?int
     {
         return $this->pluckFirstWhere('user_id', ['id' => $task_id]);
+    }
+
+    public function tasksForUser(int $user_id, string $date = null) : array
+    {
+        $date = $date ? $date : Carbon::today()->format('Y-n-j');
+        $tasks = $this->model->where('user_id', $user_id)
+                            ->whereDate('display_date', $date)
+                            ->with(['tags'])
+                            ->get()->toArray();
+        return $tasks;
+    }
+
+    public function getPreviousTaskDate(int $user_id, string $date = null) : ?string
+    {
+        $date = $date ? $date : Carbon::today()->format('Y-n-j');
+        $date = $this->model->where('user_id', $user_id)
+                            ->whereDate('display_date', '<', $date)
+                            ->groupBy('date')
+                            ->orderBy('date', 'DESC')
+                            ->first(array(
+                                DB::raw('Date(display_date) as date')
+                            ));
+        $date = $date->date ?? null;
+        if ($date) {
+            $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-n-j');
+        }
+        return $date;
+    }
+
+    public function getFutureTaskDate(int $user_id, string $date = null) : ?string
+    {
+        $date = $date ? $date : Carbon::today()->format('Y-n-j');
+        $date = $this->model->where('user_id', $user_id)
+                            ->whereDate('display_date', '>', $date)
+                            ->groupBy('date')
+                            ->orderBy('date', 'ASC')
+                            ->first(array(
+                                DB::raw('Date(display_date) as date'),
+                                // DB::raw('COUNT(*) as "tasks"')
+                            ));
+        $date = $date->date ?? null;
+        if ($date) {
+            $date = Carbon::createFromFormat('Y-m-d', $date)->format('Y-n-j');
+        }
+        return $date;
     }
 }

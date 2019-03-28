@@ -12,7 +12,7 @@ class EloquentService implements EloquentServiceInterface
     /**
      * Eloquent model for use in functions
      *
-     * @var Model
+     * @var Illuminate\Database\Eloquent\Model
      */
     protected $model;
 
@@ -83,6 +83,18 @@ class EloquentService implements EloquentServiceInterface
     public function where(string $column, $value) : Collection
     {
         return $this->model->where($column, $value)->get();
+    }
+
+    public function whereWith(array $where, array $with) : Collection
+    {
+        $query = $this->model;
+        foreach ($where as $w) {
+            if (count($w) === 3)
+                $query = $query->where($w[0], $w[2], $w[1]);
+            else
+                $query = $query->where($w[0], $w[1]);
+        }
+        return $query->with($with)->get();
     }
 
     public function selectWhere(array $columns, array $values) : Collection

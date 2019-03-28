@@ -2066,6 +2066,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config_tasks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/tasks */ "./resources/js/config/tasks.js");
 //
 //
 //
@@ -2082,9 +2083,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["layout"],
-  mounted: function mounted() {},
+  props: ["layout", "previous", "next"],
+  data: function data() {
+    return {
+      date: null
+    };
+  },
+  mounted: function mounted() {
+    this.date = this.today;
+    console.log(this.date);
+  },
   computed: {
     horizontalSelectorClass: function horizontalSelectorClass() {
       if (this.layout === "horizontal") {
@@ -2094,6 +2116,31 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       ;
+    },
+    nextDate: function nextDate() {
+      if (this.next === null && this.date !== this.today) {
+        return this.today;
+      }
+
+      return this.next;
+    },
+    title: function title() {
+      if (this.date !== null) {
+        var dateParts = this.date.split('-');
+        var d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+
+        if (this.formatDate(d) !== this.today) {
+          return d.toDateString();
+        } else {
+          return "Today";
+        }
+      }
+
+      return "Loading";
+    },
+    today: function today() {
+      var d = new Date();
+      return this.formatDate(d);
     },
     verticalSelectorClass: function verticalSelectorClass() {
       if (this.layout === "vertical") {
@@ -2106,10 +2153,21 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
+    formatDate: function formatDate(d) {
+      return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    },
+    setDate: function setDate(date) {
+      this.date = date;
+    },
     setLayout: function setLayout(layout) {
       this.$emit('changeLayout', {
         layout: layout
       });
+    }
+  },
+  watch: {
+    date: function date(newValue, oldValue) {
+      _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].tasksPageDateChanged(this, newValue);
     }
   }
 });
@@ -2172,7 +2230,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['tasks', 'title', 'type', 'showHeader', 'buttonVariant', 'buttonSize'],
+  props: ['tasks', 'title', 'type', 'showHeader', 'buttonVariant', 'buttonSize', 'date'],
   data: function data() {
     return {
       "newTaskName": "",
@@ -2222,6 +2280,7 @@ __webpack_require__.r(__webpack_exports__);
 
         task.name = _this.newTaskName;
         task.status = _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASK_STATUS"].new;
+        task.display_date = _this.date;
         _this.newTaskName = "";
         _this.taskNameError = "";
         _config_tasks__WEBPACK_IMPORTED_MODULE_0__["TASKS_EVENT"].taskAdded(_this, task);
@@ -2573,6 +2632,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2586,6 +2651,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       "firstLaunch": true,
       "layout": "vertical",
+      "next": null,
+      "previous": null,
       "showTasks": false,
       "title": "Tasks",
       "tasks": [],
@@ -41445,7 +41512,57 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "task-page-header" }, [
     _c("div", { staticClass: "task-page title" }, [
-      _c("div", { staticClass: "task-page title text" }, [_vm._v("Today")]),
+      _c("div", { staticClass: "spacer-5" }),
+      _vm._v(" "),
+      _vm.previous
+        ? _c(
+            "div",
+            {
+              staticClass: "task-page-date-selector",
+              on: {
+                click: function($event) {
+                  $event.stopPropagation()
+                  _vm.setDate(_vm.previous)
+                }
+              }
+            },
+            [
+              _c("i", {
+                staticClass: "fas fa-chevron-circle-left",
+                attrs: { title: _vm.previous }
+              })
+            ]
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      !_vm.previous ? _c("div", { staticClass: "spacer-2" }) : _vm._e(),
+      _vm._v(" "),
+      _c("div", { staticClass: "task-page title text" }, [
+        _vm._v("\n            " + _vm._s(_vm.title) + "\n        ")
+      ]),
+      _vm._v(" "),
+      _vm.nextDate
+        ? _c(
+            "div",
+            {
+              staticClass: "task-page-date-selector",
+              on: {
+                click: function($event) {
+                  $event.stopPropagation()
+                  _vm.setDate(_vm.nextDate)
+                }
+              }
+            },
+            [
+              _c("i", {
+                staticClass: "fas fa-chevron-circle-right",
+                attrs: { title: _vm.nextDate }
+              })
+            ]
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      !_vm.nextDate ? _c("div", { staticClass: "spacer-2" }) : _vm._e(),
       _vm._v(" "),
       _c("div", { staticClass: "task-page selectors" }, [
         _c(
@@ -41882,10 +41999,13 @@ var render = function() {
       { staticClass: "row justify-content-center" },
       [
         _c("task-header", {
-          attrs: { layout: _vm.layout },
+          attrs: { previous: _vm.previous, next: _vm.next, layout: _vm.layout },
           on: {
             changeLayout: function($event) {
               _vm.setLayout($event)
+            },
+            dateChanged: function($event) {
+              _vm.getTasks($event)
             }
           }
         })
@@ -41909,7 +42029,8 @@ var render = function() {
                       title: "Tasks",
                       "show-header": "true",
                       "button-variant": "primary",
-                      type: _vm.taskListTypeMain
+                      type: _vm.taskListTypeMain,
+                      date: _vm.date
                     },
                     on: {
                       taskAdded: function($event) {
@@ -53723,7 +53844,7 @@ var baseUrl = "".concat("http://127.0.0.1:8000");
         method: 'GET'
       },
       tasks: {
-        url: "".concat(baseUrl, "/user/__userid__/tasks"),
+        url: "".concat(baseUrl, "/user/__userid__/tasks/__date__"),
         method: 'GET'
       }
     },
@@ -53786,7 +53907,7 @@ var TASKS_TEMPLATE = {
   "name": "",
   "status": "",
   "expanded": false,
-  "subtasks": [],
+  "display_date": null,
   "tags": []
 };
 
@@ -53822,6 +53943,7 @@ var TASKS_EVENT_NAME = {
   taskStatusChanged: "taskStatusChanged",
   taskToggleExpanded: "taskToggleExpanded",
   taskUpdated: "taskUpdated",
+  tasksPageDateChanged: "dateChanged",
   tasksUpdated: "tasksUpdated"
 };
 var TASKS_EVENT = {
@@ -53844,8 +53966,12 @@ var TASKS_EVENT = {
     task = _.cloneDeep(task);
     context.$emit(TASKS_EVENT_NAME.taskUpdated, task);
   },
+  tasksPageDateChanged: function tasksPageDateChanged(context, date) {
+    context.$emit(TASKS_EVENT_NAME.tasksPageDateChanged, {
+      date: date
+    });
+  },
   tasksUpdated: function tasksUpdated(context, tasks) {
-    // tasks = _.cloneDeep(tasks);
     context.$emit(TASKS_EVENT_NAME.tasksUpdated, tasks);
   }
 };
@@ -54018,14 +54144,25 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    return {};
+    return {
+      date: null
+    };
   },
-  created: function created() {
-    _utils_network_client__WEBPACK_IMPORTED_MODULE_0__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_1__["default"].v1.get.tasks, null, null, null, this.tasksGetSuccess, this.tasksGetFailure);
-  },
+  created: function created() {},
   methods: {
-    tasksGetSuccess: function tasksGetSuccess(data) {
-      this.tasks = data.data;
+    getTasks: function getTasks(_ref) {
+      var date = _ref.date;
+      this.selectedTaskIndex = null;
+      this.date = date;
+      var placeholders = {
+        '__date__': date
+      };
+      _utils_network_client__WEBPACK_IMPORTED_MODULE_0__["default"].request(_config_api__WEBPACK_IMPORTED_MODULE_1__["default"].v1.get.tasks, null, placeholders, null, this.tasksGetSuccess, this.tasksGetFailure);
+    },
+    tasksGetSuccess: function tasksGetSuccess(result, url) {
+      this.tasks = result.data;
+      this.next = result.meta.dates.next || null;
+      this.previous = result.meta.dates.previous || null;
       this.updateSelectedTaskIndex();
     },
     tasksGetFailure: function tasksGetFailure(e, url) {
@@ -54253,14 +54390,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************************!*\
   !*** ./resources/js/pages/TaskPage.vue ***!
   \*****************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TaskPage_vue_vue_type_template_id_6fe7d23d___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TaskPage.vue?vue&type=template&id=6fe7d23d& */ "./resources/js/pages/TaskPage.vue?vue&type=template&id=6fe7d23d&");
 /* harmony import */ var _TaskPage_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TaskPage.vue?vue&type=script&lang=js& */ "./resources/js/pages/TaskPage.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _TaskPage_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _TaskPage_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -54290,7 +54428,7 @@ component.options.__file = "resources/js/pages/TaskPage.vue"
 /*!******************************************************************!*\
   !*** ./resources/js/pages/TaskPage.vue?vue&type=script&lang=js& ***!
   \******************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

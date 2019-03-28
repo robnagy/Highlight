@@ -38,7 +38,7 @@ Route::group(['middleware' => ['web']], function () {
     /**
      * Tasks
      */
-    Route::get('/user/{user_id}/tasks', 'TaskController@indexForUser')
+    Route::get('/user/{user_id}/tasks/{date?}', 'TaskController@indexForUser')
         ->name('tasks.index');
     Route::post('/user/{user_id}/task', 'TaskController@store')
         ->name('task.store');

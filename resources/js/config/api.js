@@ -24,7 +24,7 @@ export default {
                 method: 'GET'
             },
             tasks: {
-                url: `${baseUrl}/user/__userid__/tasks`,
+                url: `${baseUrl}/user/__userid__/tasks/__date__`,
                 method: 'GET'
             },
         },
