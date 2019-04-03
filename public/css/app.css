@@ -17259,6 +17259,13 @@ readers do not read off random characters that represent icons */
   color: red;
 }
 
+.tags-page.title.text {
+  width: 30rem;
+  font-weight: 600;
+  font-size: 3rem;
+  display: inline-block;
+}
+
 .fader-enter-active,
 .fader-leave-active {
   transition: opacity 0.3s;

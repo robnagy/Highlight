@@ -28,7 +28,10 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('tasks') }}">{{ __('Tasks') }}</a>
+                    <a class="nav-link {{ Route::currentRouteName() === 'tasks' ? "active" : "" }}" href="{{ route('tasks') }}">{{ __('Tasks') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::currentRouteName() === 'tags' ? "active" : "" }}" href="{{ route('tags') }}">{{ __('Tags') }}</a>
                     </li>
                 </ul>
 

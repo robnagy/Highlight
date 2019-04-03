@@ -19,7 +19,7 @@ export default {
         postUpdatedTask(data, index) {
             let onSuccess = (d, url) => this.postTaskSuccess(d, index, url);
             let onFailure = (e, url) => this.postTaskFailure(e, index, url);
-            let placeholders = { "__id__" : data.id };
+            let placeholders = { "__taskid__" : data.id };
             NetworkClient.request(api.v1.patch.task, data, placeholders, null, onSuccess, onFailure);
         },
         postTaskSuccess(response, index, url) {

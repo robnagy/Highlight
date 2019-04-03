@@ -38,6 +38,7 @@ Object.defineProperties(Vue.prototype, {
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
+Vue.component('tag-page-component', require('./pages/TagPage.vue').default);
 Vue.component('task-page-component', require('./pages/TaskPage.vue').default);
 // Vue.component('task-list-component', require('./components/TaskListComponent.vue').default);
 

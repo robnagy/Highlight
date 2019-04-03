@@ -5,19 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
 use App\Models\Tag;
-use App\Services\UserService;
-use App\Traits\RouteUserIdTrait;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class TagController extends Controller
 {
-    use RouteUserIdTrait;
-
     /**
      * Inject Tag service
      *
-     * @var TagServiceInterface
+     * @param TagServiceInterface $tagServiceInterface
      */
     protected $tagService;
 
@@ -41,10 +35,10 @@ class TagController extends Controller
      * an existing user_id, or be the string identifier
      * for the guest user which is "guest".
      *
-     * @param mixed $user_id
+     * @param integer $user_id
      * @return \Illuminate\Http\Response
      */
-    public function indexFor($user_id) {
+    public function indexFor(int $user_id) {
         $user_id = $this->checkUserId($user_id);
         return $this->tagService->allForUser($user_id)
             ->sortBy('text')->values();
@@ -67,24 +61,27 @@ class TagController extends Controller
      * binding that links the {tag} url segment to a tag id.
      *
      * @param TagRequest $request
-     * @param mixed $user_id
-     * @param Tag $tag
+     * @param integer $user_id
+     * @param integer $tag_id
      * @return \Illuminate\Http\Response
      */
-    public function update(TagRequest $request, $user_id, Tag $tag)
+    public function update(TagRequest $request, int $user_id, int $tag_id)
     {
-        return $this->taskService->updateFromRequest($tag, $request);
+        return $this->tagService->updateFromRequest($tag_id, $request);
     }
 
     /**
      * Removes the Tag from storage.
      *
-     * @param  \App\Models\Tag  $tag
+     * @param  integer  $user_id
+     * @param  integer  $tag_id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Tag $tag)
+    public function destroy(int $user_id, int $tag_id)
     {
-        $response = [ 'meta' => [ 'message' => 'Tag deleted: ' . $tag->delete() ] ];
+        $this->authorize('delete', [Tag::class, $user_id, $tag_id]);
+        $response = (string) $this->tagService->deleteTag( (int) $tag_id);
+        $response = [ 'meta' => [ 'message' => 'Task deleted: ' . $response ] ];
         return $response;
     }
 }

@@ -65,7 +65,7 @@ class TaskController extends Controller
      *
      * @param TaskRequest $request
      * @param int $user_id
-     * @param Task $task
+     * @param int $task_id
      * @return \Illuminate\Http\Response
      */
     public function update(TaskRequest $request, int $user_id, int $task_id)
@@ -77,11 +77,11 @@ class TaskController extends Controller
     /**
      * Deletes a task. Runs the delete method on the eloquent model.
      *
-     * @param mixed $user_id
-     * @param string $task_id
+     * @param int $user_id
+     * @param int $task_id
      * @return \Illuminate\Http\Response
      */
-    public function delete($user_id, $task_id)
+    public function delete(int $user_id, int $task_id)
     {
         $this->authorize('delete', [Task::class, $user_id, $task_id]);
 

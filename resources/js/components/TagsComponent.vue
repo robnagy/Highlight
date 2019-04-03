@@ -16,6 +16,7 @@
 
 <script>
     import VueTagsInput from '@johmun/vue-tags-input';
+    import loadTagsMixin from '../mixins/loadTagsMixin';
     import saveTagsMixin from '../mixins/saveTagsMixin';
     import NetworkClient from '../utils/network_client.js';
     import api from '../config/api.js';
@@ -23,7 +24,7 @@
     export default {
         components: { VueTagsInput },
         props: [ "taskid" ],
-        mixins: [ saveTagsMixin ],
+        mixins: [ loadTagsMixin, saveTagsMixin ],
         data() {
             return {
                 'activeTags' : [],
@@ -46,15 +47,6 @@
             fetchTaskTagsError(response, url) {
                 console.log('Fetch task tags error for url '+url);
                 console.log(response);
-            },
-            fetchUserTags() {
-                NetworkClient.request(api.v1.get.tags, null, null, null, this.fetchUserTagsSuccess, this.fetchUserTagsError);
-            },
-            fetchUserTagsSuccess(data, url) {
-                this.allTags = data;
-            },
-            fetchUserTagsError(e, url) {
-                this.errorState = true;
             },
             linkTagTask(tag_id) {
                 let placeholders = {"__taskid__" : this.taskid, "__tagid__" : tag_id};

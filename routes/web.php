@@ -15,8 +15,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/tags', function () {
+   return view('tags');
+})->name('tags');
+
 Route::get('/tasks', function () {
-   return view('tasks')->with('userId', 1);
+   return view('tasks');
 })->name('tasks');
 
 
@@ -24,13 +28,17 @@ Auth::routes();
 
 Route::get('/login/guest', 'Auth\LoginController@guestLogin')->name('auth.guestLogin');
 
+/**
+ * API routes
+ */
 Route::group(['middleware' => ['web']], function () {
     /**
      * Tags
      */
     Route::get('/user/{user_id}/tags', 'TagController@indexFor')->name('tag.indexFor');
     Route::post('/user/{user_id}/tag', 'TagController@store')->name('tag.store');
-    Route::get('/tags', 'TagController@index')->name('tags');
+    Route::patch('/user/{user_id}/tag/{tag_id}', 'TagController@update')->name('tag.update');
+    Route::delete('/user/{user_id}/tag/{tag_id}', 'TagController@update')->name('tag.delete');
     Route::get('/user/{user_id}/task/{task_id}/tags', 'TagTaskController@index')->name('tagTask.index');
     Route::get('/user/{user_id}/task/{task_id}/tag/{tag_id}/link', 'TagTaskController@link')->name('tagTask.link');
     Route::get('/user/{user_id}/task/{task_id}/tag/{tag_id}/unlink', 'TagTaskController@unlink')->name('tagTask.unlink');

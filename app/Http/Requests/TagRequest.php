@@ -6,11 +6,10 @@ use App\Models\Tag;
 use App\Traits\RouteUserIdTrait;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class TagRequest extends FormRequest
 {
-    use RouteUserIdTrait;
-
     /**
      * Determine if the user can proceed with this request.
      *
@@ -60,7 +59,7 @@ class TagRequest extends FormRequest
     public function all($keys = null)
     {
         $data = parent::all($keys);
-        $data['user_id'] = $this->translateRouteUserId();
+        $data['user_id'] = $this->route('user_id');
         return $data;
     }
 

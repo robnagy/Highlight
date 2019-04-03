@@ -22,4 +22,12 @@ class Tag extends Model
     {
         $this->belongsTo('App\Models\User');
     }
+
+    /**
+     * Sets the Tag belongs to many Task relationship
+     */
+    public function tasks()
+    {
+        $this->belongsToMany('App\Models\Task');
+    }
 }

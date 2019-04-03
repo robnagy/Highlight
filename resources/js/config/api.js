@@ -33,8 +33,12 @@ export default {
                 url: `${baseUrl}/user/__userid__/task/__taskid__/subtask/__subtaskid__`,
                 method: 'PATCH'
             },
+            tag: {
+                url: `${baseUrl}/user/__userid__/tag/__tagid__`,
+                method: 'PATCH'
+            },
             task: {
-                url: `${baseUrl}/user/__userid__/task/__id__`,
+                url: `${baseUrl}/user/__userid__/task/__taskid__`,
                 method: 'PATCH'
             },
         },
