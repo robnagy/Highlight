@@ -20,12 +20,18 @@
             </div>
 
             <tags-component :taskid="id" @tagsUpdated="updateHandler($event, 'tags')"></tags-component>
-
-            <div>
-                <datepicker
-                    :value="taskDate"
-                    @selected="changeTaskDisplayDate($event)"
-                ></datepicker>
+            <hr>
+            <div class="row">
+                <div class="col-md-3 due-date-text">
+                    Due date:
+                </div>
+                <div class="col-md-6">
+                    <datepicker
+                        :value="taskDate"
+                        :bootstrap-styling="true"
+                        @selected="changeTaskDisplayDate($event)"
+                    ></datepicker>
+                </div>
             </div>
         </div>
     </div>
