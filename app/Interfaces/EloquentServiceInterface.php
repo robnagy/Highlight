@@ -79,21 +79,34 @@ interface EloquentServiceInterface
     public function all() : Collection;
 
     /**
-     * Returns all instances of model belonging to
-     * user specified in {user_id} route segment
+     * Returns all instances of model belonging to $user_id
      *
+     * @param integer $user_id
      * @return Collection
      */
-    public function allForUser($user_id) : Collection;
+    public function allForUser(int $user_id) : Collection;
 
     /**
-     * Returns all instances of model belonging to user specified
-     * in {user_id} route segment, along with eager loaded
-     * relationships specified in the $with array.
+     * Returns all instances of model belonging to $user_id,
+     * along with the eager loaded relationships
+     * specified in the $with array.
      *
+     * @param integer $user_id
+     * @param array $with
      * @return void
      */
     public function allForUserWith(int $user_id, array $with) : Collection;
+
+    /**
+     * Returns all instances of model linked to $user_id,
+     * along with the counts of the relationships
+     * specified in the $countThese array.
+     *
+     * @param integer $user_id
+     * @param array $countThese
+     * @return void
+     */
+    public function allForUserWithCount(int $user_id, array $countThese) : Collection;
 
     /**
      * Returns all instances of model where a $column matches a $value

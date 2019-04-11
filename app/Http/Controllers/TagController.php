@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TagRequest;
 use App\Interfaces\TagServiceInterface;
 use App\Models\Tag;
+use App\Models\User;
 
 class TagController extends Controller
 {
@@ -38,9 +39,10 @@ class TagController extends Controller
      * @param integer $user_id
      * @return \Illuminate\Http\Response
      */
-    public function indexFor(int $user_id) {
-        $user_id = $this->checkUserId($user_id);
-        return $this->tagService->allForUser($user_id)
+    public function indexFor(int $user_id)
+    {
+        $this->authorize('view', [User::class, $user_id]);
+        return $this->tagService->allForUserWithCount($user_id, ['tasks'])
             ->sortBy('text')->values();
     }
 

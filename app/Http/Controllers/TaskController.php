@@ -47,6 +47,20 @@ class TaskController extends Controller
     }
 
     /**
+     * Returns tasks for user_id, tag_id specified in route parameter.
+     *
+     * @var mixed $user_id
+     * @return \Illuminate\Http\Response
+     */
+    public function indexForTag(int $user_id, string $tag_id)
+    {
+        $this->authorize('view', [User::class, $user_id]);
+        $tasks = $this->taskService->tasksForTag($user_id, $tag_id);
+        $response = [ 'data' => $tasks ];
+        return $response;
+    }
+
+    /**
      * Store a newly created task in storage.
      * Authorization occurs in the TaskRequest.
      *

@@ -48,6 +48,8 @@ Route::group(['middleware' => ['web']], function () {
      */
     Route::get('/user/{user_id}/tasks/{date?}', 'TaskController@indexForUser')
         ->name('tasks.index');
+    Route::get('/user/{user_id}/tag/{tag_id}/tasks', 'TaskController@indexForTag')
+        ->name('tasks.index');
     Route::post('/user/{user_id}/task', 'TaskController@store')
         ->name('task.store');
     Route::patch('/user/{user_id}/task/{task_id}', 'TaskController@update')

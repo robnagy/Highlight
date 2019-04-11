@@ -54,6 +54,17 @@ class TaskService extends EloquentService implements TaskServiceInterface
         return $tasks;
     }
 
+    public function tasksForTag(int $user_id, int $tag_id) : array
+    {
+        $tasks = $this->model->where('user_id', $user_id)
+                            ->whereHas('tags', function($q) use ($tag_id) {
+                                $q->where('tag_id', $tag_id);
+                            })
+                            ->with(['tags'])
+                            ->get()->toArray();
+        return $tasks;
+    }
+
     public function getPreviousTaskDate(int $user_id, string $date = null) : ?string
     {
         $date = $date ? $date : Carbon::today()->format('Y-n-j');

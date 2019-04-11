@@ -43,6 +43,15 @@ interface TaskServiceInterface extends EloquentServiceInterface
     public function tasksForUser(int $user_id, string $date = null) : array;
 
     /**
+     * Returns tasks for $user_id, for $tag_id
+     *
+     * @param integer $user_id
+     * @param integer $tag_id
+     * @return array
+     */
+    public function tasksForTag(int $user_id, int $tag_id) : array;
+
+    /**
      * Returns date of previous task belonging to $user_id,
      * where that task is before given $date (Y-n-j)
      *

@@ -47,4 +47,30 @@ class TagTaskService implements TagTaskServiceInterface
         }
         return  false;
     }
+
+    public function unlinkAllForTag(int $tag_id) : bool
+    {
+        $tag = $this->tagService->whereWith(['id' => $tag_id], ['tasks'])->first();
+
+        if ($tag) {
+            foreach($tag->tasks() as $task) {
+                $tag->tasks()->detach($task);
+            }
+            return true;
+        }
+        return  false;
+    }
+
+    public function unlinkAllForTask(int $task_id) : bool
+    {
+        $task = $this->taskService->whereWith(['id' => $task_id], ['tags'])->first();
+
+        if ($task) {
+            foreach($task->tags() as $tag) {
+                $task->tags()->detach($tag);
+            }
+            return true;
+        }
+        return  false;
+    }
 }

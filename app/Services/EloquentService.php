@@ -70,7 +70,7 @@ class EloquentService implements EloquentServiceInterface
         return $this->model->all();
     }
 
-    public function allForUser($user_id) : Collection
+    public function allForUser(int $user_id) : Collection
     {
         return $this->model->where('user_id', $user_id)->get();
     }
@@ -78,6 +78,11 @@ class EloquentService implements EloquentServiceInterface
     public function allForUserWith(int $user_id, array $with) : Collection
     {
         return $this->model->with($with)->where('user_id', $user_id)->get();
+    }
+
+    public function allForUserWithCount(int $user_id, array $countThese) : Collection
+    {
+        return $this->model->withCount($countThese)->where('user_id', $user_id)->get();
     }
 
     public function where(string $column, $value) : Collection

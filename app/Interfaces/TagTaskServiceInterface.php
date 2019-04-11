@@ -32,4 +32,20 @@ interface TagTaskServiceInterface
      * @return boolean
      */
     public function unlink(int $tag_id, int $task_id) : bool;
+
+    /**
+     * Removes the entries linking any tasks to $tag_id.
+     *
+     * @param integer $tag_id
+     * @return boolean
+     */
+    public function unlinkAllForTag(int $tag_id) : bool;
+
+    /**
+     * Removes the entries linking any tags to $task_id.
+     *
+     * @param integer $task_id
+     * @return boolean
+     */
+    public function unlinkAllForTask(int $task_id) : bool;
 }

@@ -20,7 +20,7 @@ class Tag extends Model
      */
     public function user()
     {
-        $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User');
     }
 
     /**
@@ -28,6 +28,6 @@ class Tag extends Model
      */
     public function tasks()
     {
-        $this->belongsToMany('App\Models\Task');
+        return $this->belongsToMany('App\Models\Task');
     }
 }
