@@ -15,6 +15,10 @@ export default {
                 url: `${baseUrl}/user/__userid__/task/__taskid__/tags`,
                 method: 'GET'
             },
+            tagTasks: {
+                url: `${baseUrl}/user/__userid__/tag/__tagid__/tasks`,
+                method: 'GET'
+            },
             tagTaskLink: {
                 url: `${baseUrl}/user/__userid__/task/__taskid__/tag/__tagid__/link`,
                 method: 'GET'

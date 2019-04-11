@@ -9,3 +9,25 @@
     font-size: 3rem;
     display: inline-block;
 }
+
+.tags {
+    margin-bottom: 10rem;
+}
+
+.tags-list {
+    max-width: 80%;
+}
+
+.tags-list.active {
+    max-height: 80%;
+}
+
+.tags button {
+    margin: 0.5rem;
+}
+
+.tag-cancel-edit > button {
+    margin: 0;
+    padding: 0;
+}
+
