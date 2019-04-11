@@ -84,7 +84,6 @@
                     @click.stop="markNew">
                 <i class="far fa-edit"></i>
             </a>
-            </a>
         </div>
     </div>
 </template>

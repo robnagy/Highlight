@@ -1,5 +1,5 @@
 <template>
-    <div class="tasks" :class="{ 'card-default': (showHeader === 'true'), 'card': (showHeader === 'true')}">
+    <div class="task-lists" :class="{ 'card-default': (showHeader === 'true'), 'card': (showHeader === 'true')}">
         <div class="card-header" v-if="showHeader === 'true'">
             <h3 v-if="type == taskListTypeMain">{{ title }} <span class="fas fa-list"></span></h3>
             <h5 v-if="type == taskListTypeSub">{{ title }} <span class="fas fa-list"></span> </h5>
